@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#fffaf6">
+  <title>拾分 · 一起记分</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #24211f;
+      --muted: #9a9692;
+      --line: #f0ece8;
+      --orange: #f27645;
+      --orange-dark: #e85f2d;
+      --peach: #fff1e9;
+      --green: #3d9b78;
+      --surface: #fff;
+      --background: #fffaf6;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; color: var(--ink); background: var(--background); }
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+    .page { width: min(1080px, 100% - 48px); margin: 0 auto; padding: 26px 0 48px; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: 34px; }
+    .brand { display: flex; align-items: center; gap: 11px; font-size: 20px; font-weight: 800; letter-spacing: -.5px; }
+    .brand-mark { display: grid; width: 38px; height: 38px; place-items: center; color: white; background: var(--orange); border-radius: 13px; font-size: 22px; }
+    .top-actions { display: flex; align-items: center; gap: 10px; }
+    .button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 42px; padding: 0 16px; border: 1px solid var(--line); border-radius: 12px; color: var(--ink); background: white; font-weight: 650; transition: .18s ease; }
+    .button:hover { transform: translateY(-1px); border-color: #e3d8d0; }
+    .button.primary { color: white; border-color: var(--orange); background: var(--orange); }
+    .button.primary:hover { border-color: var(--orange-dark); background: var(--orange-dark); }
+    .button.quiet { color: var(--orange-dark); border-color: #f7d9ca; background: #fff8f4; }
+    .button.small { min-height: 36px; padding: 0 12px; font-size: 13px; }
+    .hero { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 250px; gap: 34px; overflow: hidden; padding: 37px 40px; border: 1px solid #f4e9e1; border-radius: 24px; background: linear-gradient(115deg, #fff 0%, #fff 63%, #fff2e9 100%); box-shadow: 0 10px 35px #6333130b; }
+    .hero::after { position: absolute; right: 148px; bottom: -105px; width: 280px; height: 280px; border: 1px solid #f5dfd2; border-radius: 50%; content: ""; pointer-events: none; }
+    .eyebrow { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; font-weight: 650; }
+    .live-dot { width: 8px; height: 8px; border-radius: 50%; background: #51bd8d; box-shadow: 0 0 0 4px #e7f7ef; }
+    h1 { margin: 13px 0 8px; font-size: clamp(28px, 4vw, 38px); letter-spacing: -1.2px; }
+    .hero-copy { margin: 0; color: var(--muted); font-size: 14px; }
+    .hero-stats { display: flex; align-items: center; gap: 28px; margin-top: 28px; }
+    .stat + .stat { padding-left: 28px; border-left: 1px solid var(--line); }
+    .stat-number { display: block; font-size: 26px; font-weight: 800; letter-spacing: -.5px; }
+    .stat-label { color: var(--muted); font-size: 12px; }
+    .hero-side { z-index: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 155px; border-left: 1px solid #f0e1d7; }
+    .my-score { color: var(--orange-dark); font-size: 53px; font-weight: 850; line-height: 1.1; letter-spacing: -2px; }
+    .my-score-label { margin-top: 6px; color: var(--muted); font-size: 13px; }
+    .room-meta { display: flex; align-items: center; gap: 8px; margin-top: 18px; color: #807a75; font-size: 12px; }
+    .room-code { padding: 4px 8px; color: #a25331; background: #ffede3; border-radius: 6px; font-weight: 750; letter-spacing: 1px; }
+    .main-grid { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(285px, .85fr); gap: 22px; margin-top: 22px; }
+    .card { border: 1px solid var(--line); border-radius: 20px; background: var(--surface); box-shadow: 0 7px 24px #38200d05; }
+    .card-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 22px 23px 15px; }
+    .card-title { margin: 0; font-size: 16px; font-weight: 760; }
+    .card-subtitle { margin: 5px 0 0; color: var(--muted); font-size: 12px; }
+    .tabs { display: flex; gap: 17px; align-items: center; }
+    .tab { padding: 5px 0; border: 0; color: var(--muted); background: transparent; font-size: 12px; }
+    .tab.active { color: var(--orange-dark); font-weight: 750; }
+    .member-list { padding: 0 23px 12px; }
+    .member { display: grid; grid-template-columns: 38px minmax(0, 1fr) auto auto; align-items: center; gap: 12px; min-height: 67px; border-top: 1px solid #f5f2ef; }
+    .avatar { display: grid; width: 38px; height: 38px; place-items: center; border-radius: 50%; background: #f2f0ed; font-size: 18px; }
+    .avatar.you { background: #fff0e8; }
+    .member-name { display: block; overflow: hidden; font-size: 13px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+    .member-hint { display: block; overflow: hidden; margin-top: 4px; color: var(--muted); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+    .score-value { min-width: 56px; text-align: right; font-size: 15px; font-weight: 800; }
+    .score-unit { color: var(--muted); font-size: 11px; font-weight: 500; }
+    .rank { width: 23px; color: #b4aea8; text-align: center; font-size: 12px; font-weight: 750; }
+    .rank.first { color: #e3a33a; }
+    .activity-list { padding: 0 23px 14px; }
+    .activity { display: flex; align-items: flex-start; gap: 11px; padding: 13px 0; border-top: 1px solid #f5f2ef; }
+    .activity-icon { display: grid; flex: 0 0 30px; width: 30px; height: 30px; place-items: center; border-radius: 10px; background: #eff8f3; color: var(--green); font-size: 14px; font-weight: 800; }
+    .activity-icon.minus { color: var(--orange-dark); background: #fff2eb; }
+    .activity-detail { min-width: 0; flex: 1; }
+    .activity-text { font-size: 12px; line-height: 1.5; }
+    .activity-time { margin-top: 4px; color: #aaa49e; font-size: 10px; }
+    .activity-points { padding-top: 4px; color: var(--green); font-size: 13px; font-weight: 800; white-space: nowrap; }
+    .activity-points.minus { color: var(--orange-dark); }
+    .quick-actions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; padding: 0 23px 22px; }
+    .quick-actions .button { min-height: 46px; }
+    .tip { display: flex; gap: 11px; margin-top: 19px; padding: 15px 17px; border: 1px solid #f4eadf; border-radius: 15px; color: #85796e; background: #fffdf9; font-size: 12px; line-height: 1.7; }
+    .tip b { color: #5c5046; }
+    .footer { display: flex; justify-content: space-between; gap: 15px; margin-top: 22px; color: #aaa29c; font-size: 11px; }
+    .modal-backdrop { position: fixed; z-index: 5; inset: 0; display: grid; place-items: center; padding: 18px; background: #201a16a6; }
+    .modal { width: min(430px, 100%); max-height: calc(100vh - 36px); overflow: auto; padding: 26px; border-radius: 22px; background: white; box-shadow: 0 20px 70px #21140f2e; }
+    .modal-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+    .modal-title { margin: 0; font-size: 21px; letter-spacing: -.4px; }
+    .modal-copy { margin: 8px 0 20px; color: var(--muted); font-size: 13px; line-height: 1.6; }
+    .close { display: grid; width: 34px; height: 34px; place-items: center; border: 0; border-radius: 10px; color: var(--muted); background: #f7f5f3; font-size: 21px; }
+    .field { display: grid; gap: 7px; margin: 15px 0; }
+    .field label { color: #716a65; font-size: 12px; font-weight: 700; }
+    .field input, .field select { width: 100%; min-height: 46px; padding: 0 13px; border: 1px solid #eae5e1; border-radius: 11px; outline: none; color: var(--ink); background: white; }
+    .field input:focus, .field select:focus { border-color: #f3a27d; box-shadow: 0 0 0 3px #fff0e8; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 9px; margin-top: 19px; }
+    .qr-wrap { display: grid; width: 190px; height: 190px; margin: 20px auto 13px; place-items: center; border: 1px solid var(--line); border-radius: 15px; background: white; }
+    .qr-wrap img, .qr-wrap canvas { width: 160px; height: 160px; }
+    .join-code { margin: 12px auto; text-align: center; font-size: 24px; font-weight: 850; letter-spacing: 5px; color: var(--orange-dark); }
+    .center-copy { color: var(--muted); font-size: 12px; text-align: center; line-height: 1.6; }
+    .toast { position: fixed; z-index: 10; left: 50%; bottom: 26px; padding: 11px 17px; transform: translateX(-50%); border-radius: 12px; color: white; background: #292421; box-shadow: 0 8px 25px #0002; font-size: 13px; }
+    .empty { padding: 26px 0; color: var(--muted); text-align: center; font-size: 13px; }
+    [hidden] { display: none !important; }
+
+    @media (max-width: 740px) {
+      .page { width: min(100% - 28px, 560px); padding-top: 16px; }
+      .topbar { margin-bottom: 18px; }
+      .brand { font-size: 17px; }
+      .brand-mark { width: 34px; height: 34px; }
+      .top-actions { gap: 6px; }
+      .top-actions .button { min-height: 37px; padding: 0 10px; font-size: 12px; white-space: nowrap; }
+      .brand { flex-shrink: 0; }
+      .top-actions { flex-shrink: 0; }
+      .hero { grid-template-columns: 1fr auto; gap: 12px; padding: 23px 20px; border-radius: 19px; }
+      .hero::after { right: 23px; }
+      h1 { margin-top: 11px; font-size: 27px; }
+      .hero-copy { max-width: 240px; font-size: 12px; line-height: 1.6; }
+      .hero-stats { gap: 18px; margin-top: 23px; }
+      .stat + .stat { padding-left: 18px; }
+      .stat-number { font-size: 22px; }
+      .stat-label { font-size: 11px; }
+      .hero-side { min-height: 125px; padding-left: 15px; }
+      .my-score { font-size: 42px; }
+      .room-meta { flex-wrap: wrap; gap: 5px; font-size: 10px; }
+      .main-grid { grid-template-columns: 1fr; gap: 14px; margin-top: 14px; }
+      .card-head { padding: 18px 17px 12px; }
+      .member-list, .activity-list { padding-right: 17px; padding-left: 17px; }
+      .quick-actions { padding: 0 17px 17px; }
+      .quick-actions { gap: 7px; }
+      .quick-actions .button { gap: 5px; padding: 0 6px; font-size: 12px; }
+      .tip { margin-top: 14px; padding: 12px 14px; }
+      .footer { font-size: 10px; }
+    }
+    @media (max-width: 390px) {
+      .brand > span:last-child > span { display: none; }
+      .top-actions .button { padding: 0 8px; }
+      .hero { padding-right: 15px; padding-left: 16px; }
+      .hero-side { padding-left: 10px; }
+      .stat + .stat { padding-left: 13px; }
+      .hero-stats { gap: 13px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="topbar">
+      <div class="brand"><span class="brand-mark">分</span><span>拾分 <span style="font-size:12px;color:#aaa;font-weight:500">一起记分，开心相聚</span></span></div>
+      <div class="top-actions">
+        <button class="button small" id="newRoomBtn">＋ 新建房间</button>
+        <button class="button small" id="joinRoomBtn">加入房间</button>
+        <button class="button small primary" id="inviteBtn">＋ 邀请好友</button>
+      </div>
+    </header>
+
+    <section class="hero" aria-labelledby="roomName">
+      <div>
+        <div class="eyebrow"><span class="live-dot"></span>正在进行的积分房间</div>
+        <h1 id="roomName"></h1>
+        <p class="hero-copy">一起记下每个小目标，让努力都被看见。</p>
+        <div class="hero-stats">
+          <div class="stat"><span class="stat-number" id="memberCount">0</span><span class="stat-label">位伙伴</span></div>
+          <div class="stat"><span class="stat-number" id="totalPoints">0</span><span class="stat-label">累计积分</span></div>
+          <div class="stat"><span class="stat-number" id="myRank">—</span><span class="stat-label">我的排名</span></div>
+        </div>
+        <div class="room-meta">房间码 <span class="room-code" id="roomCode"></span><button class="button small" id="copyCodeBtn">复制</button></div>
+      </div>
+      <div class="hero-side">
+        <span class="my-score" id="myPoints">0</span>
+        <span class="my-score-label">我的积分</span>
+      </div>
+    </section>
+
+    <section class="main-grid">
+      <article class="card">
+        <div class="card-head">
+          <div><h2 class="card-title">房间伙伴</h2><p class="card-subtitle">每一分，都是一起努力的证明</p></div>
+          <div class="tabs" role="tablist"><button class="tab active" id="rankTab" role="tab" aria-selected="true">积分排行</button><button class="tab" id="historyTab" role="tab" aria-selected="false">积分明细</button></div>
+        </div>
+        <div class="member-list" id="memberList"></div>
+        <div class="activity-list" id="activityList" hidden></div>
+        <div class="quick-actions">
+          <button class="button primary" id="addPointsBtn">＋ 记积分</button>
+          <button class="button quiet" id="transferBtn">↗ 转出积分</button>
+          <button class="button" id="addMemberBtn">＋ 添加伙伴</button>
+        </div>
+      </article>
+
+      <aside>
+        <article class="card">
+          <div class="card-head">
+            <div><h2 class="card-title">最近动态</h2><p class="card-subtitle">房间里的积分变化</p></div>
+          </div>
+          <div class="activity-list" id="recentList"></div>
+        </article>
+        <div class="tip"><span>✦</span><span><b>积分只在房间内流转</b><br>点「转出积分」选择伙伴和数量。拾分仅用于记录与互动，不涉及金钱。</span></div>
+      </aside>
+    </section>
+    <footer class="footer"><span>拾分 · 轻松记录每一份小小成就</span><span>演示版 · 数据保存在当前浏览器</span></footer>
+  </main>
+  <div id="modalRoot" hidden></div>
+  <div class="toast" id="toast" hidden></div>
+
+  <script>
+    const STORAGE_KEY = "shifen-room-v1";
+    const icons = ["🌿", "🪴", "☀️", "🍊", "🌼", "🐻", "🌙"];
+    const initialState = {
+      roomName: "周末小聚",
+      roomCode: "PKX7",
+      currentId: "me",
+      members: [
+        { id: "me", name: "林间风", points: 459, icon: "🌿" },
+        { id: "m2", name: "周小满", points: 528, icon: "☀️" },
+        { id: "m3", name: "阿澈", points: 386, icon: "🍊" }
+      ],
+      transactions: [
+        { from: "m2", to: "m3", amount: 12, note: "今天也要加油", time: Date.now() - 1800000 },
+        { from: "me", to: "m2", amount: 8, note: "一起完成运动打卡", time: Date.now() - 7200000 },
+        { from: "m3", to: "me", amount: 15, note: "谢谢帮忙", time: Date.now() - 86400000 }
+      ]
+    };
+
+    let state = loadState();
+    let toastTimer;
+
+    function loadState() {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (!stored) return structuredClone(initialState);
+        const parsed = JSON.parse(stored);
+        if (!Array.isArray(parsed.members) || !Array.isArray(parsed.transactions) || !parsed.members.some(member => member.id === parsed.currentId)) {
+          throw new Error("本地积分数据格式不正确");
+        }
+        return parsed;
+      } catch (error) {
+        if (error instanceof SyntaxError) {
+          localStorage.removeItem(STORAGE_KEY);
+          return structuredClone(initialState);
+        }
+        throw error;
+      }
+    }
+
+    function saveState() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
+    }
+
+    function getMember(id) {
+      return state.members.find(member => member.id === id);
+    }
+
+    function formatTime(time) {
+      const elapsed = Math.max(0, Date.now() - time);
+      if (elapsed < 60000) return "刚刚";
+      if (elapsed < 3600000) return `${Math.floor(elapsed / 60000)} 分钟前`;
+      if (elapsed < 86400000) return `${Math.floor(elapsed / 3600000)} 小时前`;
+      return `${Math.floor(elapsed / 86400000)} 天前`;
+    }
+
+    function transactionMarkup(transaction) {
+      if (transaction.type === "earn") {
+        const actor = getMember(transaction.actor);
+        const recipient = getMember(transaction.to);
+        if (!actor || !recipient) return "";
+        const mine = recipient.id === state.currentId;
+        return `<div class="activity">
+          <div class="activity-icon">＋</div>
+          <div class="activity-detail">
+            <div class="activity-text">${escapeHtml(actor.name)} 给 ${escapeHtml(recipient.name)} 记入积分${actor.id === state.currentId ? " <span style='color:#aaa'>(我记录)</span>" : ""}<br><span style="color:#8d8680">${escapeHtml(transaction.note || "积分奖励")}</span></div>
+            <div class="activity-time">${formatTime(transaction.time)}</div>
+          </div>
+          <div class="activity-points">${mine ? "+" : ""}${transaction.amount}</div>
+        </div>`;
+      }
+      const from = getMember(transaction.from);
+      const to = getMember(transaction.to);
+      if (!from || !to) return "";
+      const isMine = transaction.from === state.currentId || transaction.to === state.currentId;
+      const amountClass = transaction.from === state.currentId ? " minus" : "";
+      const displayAmount = transaction.to === state.currentId ? `+${transaction.amount}` : transaction.from === state.currentId ? `-${transaction.amount}` : `${transaction.amount}`;
+      return `<div class="activity">
+        <div class="activity-icon${amountClass}">${transaction.to === state.currentId ? "↙" : "↗"}</div>
+        <div class="activity-detail">
+          <div class="activity-text">${escapeHtml(from.name)} 转给 ${escapeHtml(to.name)}${isMine ? " <span style='color:#aaa'>(我)</span>" : ""}<br><span style="color:#8d8680">${escapeHtml(transaction.note || "积分转赠")}</span></div>
+          <div class="activity-time">${formatTime(transaction.time)}</div>
+        </div>
+        <div class="activity-points${amountClass}">${displayAmount}</div>
+      </div>`;
+    }
+
+    function render() {
+      const current = getMember(state.currentId);
+      const ranked = [...state.members].sort((a, b) => b.points - a.points);
+      document.title = `${state.roomName} · 拾分`;
+      document.getElementById("roomName").textContent = state.roomName;
+      document.getElementById("roomCode").textContent = state.roomCode;
+      document.getElementById("memberCount").textContent = state.members.length;
+      document.getElementById("totalPoints").textContent = state.members.reduce((sum, member) => sum + member.points, 0).toLocaleString("zh-CN");
+      document.getElementById("myRank").textContent = `${ranked.findIndex(member => member.id === state.currentId) + 1}`;
+      document.getElementById("myPoints").textContent = current.points.toLocaleString("zh-CN");
+      document.getElementById("memberList").innerHTML = ranked.map((member, index) => `
+        <div class="member">
+          <span class="rank${index === 0 ? " first" : ""}">${String(index + 1).padStart(2, "0")}</span>
+          <span class="avatar${member.id === state.currentId ? " you" : ""}">${escapeHtml(member.icon || "🙂")}</span>
+          <span><span class="member-name">${escapeHtml(member.name)}${member.id === state.currentId ? "（我）" : ""}</span><span class="member-hint">${index === 0 ? "本房间积分领先" : "继续积累，越来越棒"}</span></span>
+          <span class="score-value">${member.points.toLocaleString("zh-CN")} <span class="score-unit">分</span></span>
+        </div>`).join("");
+      const history = [...state.transactions].sort((a, b) => b.time - a.time);
+      const markup = history.length ? history.map(transactionMarkup).join("") : '<div class="empty">还没有积分记录，转出第一笔积分吧</div>';
+      document.getElementById("activityList").innerHTML = markup;
+      document.getElementById("recentList").innerHTML = history.slice(0, 4).map(transactionMarkup).join("") || '<div class="empty">房间还没有动态</div>';
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.hidden = false;
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => { toast.hidden = true; }, 2300);
+    }
+
+    function openModal(title, copy, content) {
+      const root = document.getElementById("modalRoot");
+      root.innerHTML = `<div class="modal-backdrop"><section class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+        <div class="modal-top"><h2 class="modal-title" id="modalTitle">${title}</h2><button class="close" aria-label="关闭" data-close>×</button></div>
+        <p class="modal-copy">${copy}</p>${content}</section></div>`;
+      root.hidden = false;
+      root.querySelector("[data-close]").addEventListener("click", closeModal);
+      root.querySelector(".modal-backdrop").addEventListener("click", event => { if (event.target.classList.contains("modal-backdrop")) closeModal(); });
+      const focusTarget = root.querySelector("input, select, button:not([data-close])");
+      if (focusTarget) focusTarget.focus();
+    }
+
+    function closeModal() {
+      const root = document.getElementById("modalRoot");
+      root.hidden = true;
+      root.innerHTML = "";
+    }
+
+    async function copyText(text) {
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast("已复制到剪贴板");
+      } catch {
+        const field = document.createElement("textarea");
+        field.value = text;
+        field.style.position = "fixed";
+        field.style.opacity = "0";
+        document.body.append(field);
+        field.select();
+        const copied = document.execCommand("copy");
+        field.remove();
+        if (copied) showToast("已复制到剪贴板");
+        else showToast("复制失败，请手动选择房间码");
+      }
+    }
+
+    function invite() {
+      const inviteUrl = new URL(location.href);
+      inviteUrl.searchParams.set("room", state.roomCode);
+      openModal("邀请好友加入", `分享房间码，或者让好友扫描二维码加入「${escapeHtml(state.roomName)}」。`, `
+        <div class="qr-wrap" id="qrCode"><span style="color:#aaa;font-size:12px">二维码加载中…</span></div>
+        <div class="join-code">${escapeHtml(state.roomCode)}</div>
+        <div class="center-copy">房间码有效 · 好友输入房间码即可加入<br>当前为本地演示，二维码仅携带房间链接和房间码</div>
+        <div class="modal-actions"><button class="button" data-close>稍后</button><button class="button primary" id="shareLinkBtn">复制邀请链接</button></div>`);
+      document.getElementById("shareLinkBtn").addEventListener("click", () => copyText(inviteUrl.href));
+      const drawCode = () => {
+        const target = document.getElementById("qrCode");
+        if (target && window.QRCode) {
+          target.innerHTML = "";
+          new QRCode(target, { text: inviteUrl.href, width: 160, height: 160, colorDark: "#26211e", colorLight: "#ffffff", correctLevel: QRCode.CorrectLevel.M });
+        } else if (target) {
+          target.innerHTML = `<span style="padding:14px;text-align:center;color:#8d8680;font-size:12px;line-height:1.6">暂时无法加载二维码<br>请复制房间码加入</span>`;
+        }
+      };
+      if (window.QRCode) drawCode();
+      else {
+        let tries = 0;
+        const interval = setInterval(() => {
+          if (window.QRCode || ++tries > 20 || document.getElementById("qrCode") === null) {
+            clearInterval(interval);
+            drawCode();
+          }
+        }, 150);
+      }
+    }
+
+    function showTransfer() {
+      const current = getMember(state.currentId);
+      const friends = state.members.filter(member => member.id !== state.currentId);
+      if (!friends.length) {
+        showToast("先添加一位伙伴，再转出积分");
+        return;
+      }
+      openModal("转出积分", `当前可用积分 ${current.points} 分。转赠后会立即更新双方积分。`, `
+        <form id="transferForm">
+          <div class="field"><label for="transferTo">转给谁</label><select id="transferTo" required>${friends.map(member => `<option value="${escapeHtml(member.id)}">${escapeHtml(member.name)} · ${member.points} 分</option>`).join("")}</select></div>
+          <div class="field"><label for="transferAmount">转出积分</label><input id="transferAmount" type="number" min="1" max="${current.points}" placeholder="请输入积分数量" required></div>
+          <div class="field"><label for="transferNote">备注（选填）</label><input id="transferNote" maxlength="32" placeholder="例如：今天打卡完成啦"></div>
+          <div class="modal-actions"><button type="button" class="button" data-close>取消</button><button type="submit" class="button primary">确认转出</button></div>
+        </form>`);
+      document.getElementById("transferForm").addEventListener("submit", event => {
+        event.preventDefault();
+        const recipient = getMember(document.getElementById("transferTo").value);
+        const amount = Number(document.getElementById("transferAmount").value);
+        const note = document.getElementById("transferNote").value.trim();
+        if (!recipient || !Number.isSafeInteger(amount) || amount < 1 || amount > current.points) {
+          showToast("积分数量无效，请检查可用积分");
+          return;
+        }
+        current.points -= amount;
+        recipient.points += amount;
+        state.transactions.unshift({ from: current.id, to: recipient.id, amount, note, time: Date.now() });
+        saveState();
+        render();
+        closeModal();
+        showToast(`已转给 ${recipient.name} ${amount} 分`);
+      });
+    }
+
+    function showAddPoints() {
+      const current = getMember(state.currentId);
+      openModal("记一笔积分", "给自己或房间伙伴记入积分，分数会立即累计到账。", `
+        <form id="addPointsForm">
+          <div class="field"><label for="pointsTo">记给谁</label><select id="pointsTo" required>${state.members.map(member => `<option value="${escapeHtml(member.id)}"${member.id === current.id ? " selected" : ""}>${escapeHtml(member.name)} · ${member.points} 分</option>`).join("")}</select></div>
+          <div class="field"><label for="pointsAmount">增加积分</label><input id="pointsAmount" type="number" min="1" max="1000000" placeholder="请输入积分数量" required></div>
+          <div class="field"><label for="pointsNote">备注（选填）</label><input id="pointsNote" maxlength="32" placeholder="例如：完成今日运动打卡"></div>
+          <div class="modal-actions"><button type="button" class="button" data-close>取消</button><button type="submit" class="button primary">确认记分</button></div>
+        </form>`);
+      document.getElementById("addPointsForm").addEventListener("submit", event => {
+        event.preventDefault();
+        const recipient = getMember(document.getElementById("pointsTo").value);
+        const amount = Number(document.getElementById("pointsAmount").value);
+        const note = document.getElementById("pointsNote").value.trim();
+        if (!recipient || !Number.isSafeInteger(amount) || amount < 1 || amount > 1000000) {
+          showToast("积分数量无效，请输入 1 到 1,000,000 之间的整数");
+          return;
+        }
+        recipient.points += amount;
+        state.transactions.unshift({ type: "earn", actor: current.id, to: recipient.id, amount, note, time: Date.now() });
+        saveState();
+        render();
+        closeModal();
+        showToast(`已为 ${recipient.name} 记入 ${amount} 分`);
+      });
+    }
+
+    function showAddMember() {
+      openModal("添加房间伙伴", "添加一位伙伴到本机演示数据中，开始记录彼此的积分。", `
+        <form id="addMemberForm">
+          <div class="field"><label for="memberName">伙伴昵称</label><input id="memberName" maxlength="16" placeholder="请输入昵称" required></div>
+          <div class="field"><label for="memberStart">初始积分</label><input id="memberStart" type="number" min="0" max="1000000" value="0" required></div>
+          <div class="modal-actions"><button type="button" class="button" data-close>取消</button><button type="submit" class="button primary">添加伙伴</button></div>
+        </form>`);
+      document.getElementById("addMemberForm").addEventListener("submit", event => {
+        event.preventDefault();
+        const name = document.getElementById("memberName").value.trim();
+        const points = Number(document.getElementById("memberStart").value);
+        if (!name || !Number.isSafeInteger(points) || points < 0 || points > 1000000 || state.members.some(member => member.name === name)) {
+          showToast("请填写有效积分，昵称不能重复");
+          return;
+        }
+        state.members.push({ id: `m-${crypto.randomUUID()}`, name, points, icon: icons[Math.floor(Math.random() * icons.length)] });
+        saveState();
+        render();
+        closeModal();
+        showToast(`${name} 已加入房间`);
+      });
+    }
+
+    function showJoinRoom() {
+      openModal("加入记分房间", "输入好友分享的房间码，体验房间加入流程。", `
+        <form id="joinForm">
+          <div class="field"><label for="joinCodeInput">房间码</label><input id="joinCodeInput" maxlength="8" placeholder="例如 PKX7" required></div>
+          <div class="modal-actions"><button type="button" class="button" data-close>取消</button><button type="submit" class="button primary">加入房间</button></div>
+        </form>`);
+      document.getElementById("joinForm").addEventListener("submit", event => {
+        event.preventDefault();
+        const code = document.getElementById("joinCodeInput").value.trim().toUpperCase();
+        if (code.length < 4) {
+          showToast("请输入至少 4 位房间码");
+          return;
+        }
+        if (code === state.roomCode) {
+          closeModal();
+          showToast("你已经在这个房间里啦");
+          return;
+        }
+        state.roomCode = code;
+        state.roomName = "新加入的房间";
+        state.members = [{ id: state.currentId, name: getMember(state.currentId).name, points: 0, icon: getMember(state.currentId).icon }];
+        state.transactions = [];
+        saveState();
+        render();
+        closeModal();
+        showToast("演示房间已切换；跨设备同步需接入服务端");
+      });
+    }
+
+    function showCreateRoom() {
+      openModal("新建记分房间", "给房间起个名字，邀请伙伴一起记分。创建后会在本机开启一个新的演示房间。", `
+        <form id="createRoomForm">
+          <div class="field"><label for="newRoomName">房间名称</label><input id="newRoomName" maxlength="20" placeholder="例如：周末小聚" required></div>
+          <div class="modal-actions"><button type="button" class="button" data-close>取消</button><button type="submit" class="button primary">创建房间</button></div>
+        </form>`);
+      document.getElementById("createRoomForm").addEventListener("submit", event => {
+        event.preventDefault();
+        const roomName = document.getElementById("newRoomName").value.trim();
+        if (!roomName) {
+          showToast("请输入房间名称");
+          return;
+        }
+        const current = getMember(state.currentId);
+        state.roomName = roomName;
+        state.roomCode = crypto.randomUUID().replaceAll("-", "").slice(0, 4).toUpperCase();
+        state.members = [{ id: state.currentId, name: current.name, points: 0, icon: current.icon }];
+        state.transactions = [];
+        saveState();
+        render();
+        closeModal();
+        showToast("房间已创建，邀请伙伴加入吧");
+      });
+    }
+
+    document.getElementById("newRoomBtn").addEventListener("click", showCreateRoom);
+    document.getElementById("inviteBtn").addEventListener("click", invite);
+    document.getElementById("joinRoomBtn").addEventListener("click", showJoinRoom);
+    document.getElementById("addMemberBtn").addEventListener("click", showAddMember);
+    document.getElementById("addPointsBtn").addEventListener("click", showAddPoints);
+    document.getElementById("transferBtn").addEventListener("click", showTransfer);
+    document.getElementById("copyCodeBtn").addEventListener("click", () => copyText(state.roomCode));
+    document.getElementById("rankTab").addEventListener("click", event => {
+      event.currentTarget.classList.add("active");
+      event.currentTarget.setAttribute("aria-selected", "true");
+      document.getElementById("historyTab").classList.remove("active");
+      document.getElementById("historyTab").setAttribute("aria-selected", "false");
+      document.getElementById("memberList").hidden = false;
+      document.getElementById("activityList").hidden = true;
+    });
+    document.getElementById("historyTab").addEventListener("click", event => {
+      event.currentTarget.classList.add("active");
+      event.currentTarget.setAttribute("aria-selected", "true");
+      document.getElementById("rankTab").classList.remove("active");
+      document.getElementById("rankTab").setAttribute("aria-selected", "false");
+      document.getElementById("memberList").hidden = true;
+      document.getElementById("activityList").hidden = false;
+    });
+    document.addEventListener("keydown", event => { if (event.key === "Escape") closeModal(); });
+
+    const invitedRoom = new URLSearchParams(location.search).get("room");
+    if (invitedRoom && invitedRoom.toUpperCase() !== state.roomCode) {
+      document.getElementById("joinRoomBtn").addEventListener("click", () => {
+        const input = document.getElementById("joinCodeInput");
+        if (input) input.value = invitedRoom;
+      }, { once: true });
+      setTimeout(() => {
+        showJoinRoom();
+        const input = document.getElementById("joinCodeInput");
+        if (input) input.value = invitedRoom;
+      }, 100);
+    }
+    render();
+  </script>
+</body>
+</html>
