@@ -6,6 +6,8 @@
   <meta name="theme-color" content="#fffaf6">
   <title>拾分 · 一起记分</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
+  <script src="./supabase-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
       color-scheme: light;
@@ -38,6 +40,18 @@
     .button.small { min-height: 36px; padding: 0 12px; font-size: 13px; }
     .button.icon-button { width: 38px; padding: 0; font-size: 18px; }
     .room-menu-button { display: inline-flex; }
+    .topbar.landing .top-actions { display: none; }
+    .topbar.landing { margin-bottom: 30px; }
+    .welcome { max-width: 700px; margin: clamp(36px, 12vh, 110px) auto; text-align: center; }
+    .welcome-mark { display: grid; width: 62px; height: 62px; margin: 0 auto 20px; place-items: center; border-radius: 20px; color: #fff; background: var(--orange); font-size: 32px; font-weight: 800; box-shadow: 0 8px 25px #f2764530; }
+    .welcome h1 { margin: 0 0 10px; font-size: clamp(29px, 6vw, 40px); letter-spacing: -1px; }
+    .welcome-copy { margin: 0; color: var(--muted); font-size: 14px; }
+    .welcome-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; max-width: 500px; margin: 32px auto 0; }
+    .welcome-action { display: grid; min-height: 112px; align-content: center; justify-items: center; gap: 7px; padding: 18px; border: 1px solid var(--line); border-radius: 18px; color: var(--ink); background: #fff; font-size: 16px; font-weight: 750; box-shadow: 0 7px 24px #38200d05; }
+    .welcome-action.primary { border-color: var(--orange); color: #fff; background: var(--orange); }
+    .welcome-action span { font-size: 12px; font-weight: 450; opacity: .8; }
+    .welcome-note { margin-top: 24px; color: var(--muted); font-size: 12px; line-height: 1.7; }
+    .cloud-warning { margin-top: 18px; padding: 12px 15px; border: 1px solid #f5d4c4; border-radius: 12px; color: #a14d2c; background: #fff4ed; font-size: 12px; line-height: 1.6; }
     .hero { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 250px; gap: 34px; overflow: hidden; padding: 37px 40px; border: 1px solid #f4e9e1; border-radius: 24px; background: linear-gradient(115deg, #fff 0%, #fff 63%, #fff2e9 100%); box-shadow: 0 10px 35px #6333130b; }
     .hero::after { position: absolute; right: 148px; bottom: -105px; width: 280px; height: 280px; border: 1px solid #f5dfd2; border-radius: 50%; content: ""; pointer-events: none; }
     .eyebrow { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; font-weight: 650; }
@@ -111,6 +125,10 @@
       .top-actions .button { min-height: 34px; padding: 0 9px; font-size: 11px; white-space: nowrap; }
       .top-actions #newRoomBtn, .top-actions #joinRoomBtn, .top-actions #backupBtn { display: none; }
       .room-menu-button { display: inline-flex; }
+      .topbar.landing { margin-bottom: 14px; }
+      .welcome { margin: 9vh auto; }
+      .welcome-actions { gap: 9px; margin-top: 24px; }
+      .welcome-action { min-height: 96px; padding: 12px; font-size: 14px; }
       .hero { grid-template-columns: minmax(0, 1fr) auto; gap: 10px; padding: 17px 15px; border-radius: 17px; }
       .hero::after { right: 23px; }
       h1 { margin: 8px 0 5px; font-size: 23px; }
@@ -146,7 +164,7 @@
 </head>
 <body>
   <main class="page">
-    <header class="topbar">
+    <header class="topbar landing" id="topbar">
       <div class="brand"><span class="brand-mark">分</span><span>拾分 <span style="font-size:12px;color:#aaa;font-weight:500">一起记分，开心相聚</span></span></div>
       <div class="top-actions">
         <button class="button small" id="newRoomBtn">＋ 新建房间</button>
@@ -157,6 +175,18 @@
       </div>
     </header>
 
+    <section class="welcome" id="welcome" hidden>
+      <div class="welcome-mark">分</div>
+      <h1>把快乐记下来</h1>
+      <p class="welcome-copy">创建一个房间，或加入朋友的房间一起记分。</p>
+      <div class="welcome-actions">
+        <button class="welcome-action primary" id="welcomeCreateBtn">＋ 新建房间<span>从 0 分开始，邀请伙伴加入</span></button>
+        <button class="welcome-action" id="welcomeJoinBtn">↗ 加入房间<span>输入房间码或扫描邀请二维码</span></button>
+      </div>
+      <p class="welcome-note" id="welcomeNote"></p>
+      <div class="cloud-warning" id="cloudWarning" hidden></div>
+    </section>
+    <div id="roomView" hidden>
     <section class="hero" aria-labelledby="roomName">
       <div>
         <div class="eyebrow"><span class="live-dot"></span>正在进行的积分房间</div>
@@ -185,7 +215,7 @@
         <div class="quick-actions">
           <button class="button primary" id="addPointsBtn">＋ 记积分</button>
           <button class="button quiet" id="transferBtn">↗ 转出积分</button>
-          <button class="button" id="addMemberBtn">＋ 添加伙伴</button>
+          <button class="button" id="addMemberBtn">＋ 邀请伙伴</button>
         </div>
       </article>
       <article class="card">
@@ -195,13 +225,15 @@
         <div class="activity-list" id="activityList"></div>
       </article>
     </section>
+    </div>
   </main>
-  <input id="restoreFile" type="file" accept="application/json,.json" hidden>
   <div id="modalRoot" hidden></div>
   <div class="toast" id="toast" hidden></div>
 
   <script>
-    const STORAGE_KEY = "shifen-room-v1";
+    const LAST_ROOM_KEY = "shifen-last-room-v1";
+    const SUPABASE_URL = window.SHIFEN_SUPABASE?.url || "";
+    const SUPABASE_ANON_KEY = window.SHIFEN_SUPABASE?.anonKey || "";
     const icons = ["🌿", "🪴", "☀️", "🍊", "🌼", "🐻", "🌙"];
     const initialState = {
       roomName: "周末小聚",
@@ -215,52 +247,16 @@
       transactions: []
     };
 
-    let storageCorrupt = false;
-    let state = loadState();
+    let state = structuredClone(initialState);
     let toastTimer;
-
-    function loadState() {
-      try {
-        const stored = localStorage.getItem(STORAGE_KEY);
-        if (!stored) return structuredClone(initialState);
-        const parsed = JSON.parse(stored);
-        if (!Array.isArray(parsed.members) || !Array.isArray(parsed.transactions) || !parsed.members.some(member => member.id === parsed.currentId)) {
-          throw new Error("本地积分数据格式不正确");
-        }
-        return parsed;
-      } catch (error) {
-        if (error instanceof SyntaxError) {
-          storageCorrupt = true;
-          return structuredClone(initialState);
-        }
-        throw error;
-      }
-    }
-
-    function saveState(previousState, allowRepair = false) {
-      if (storageCorrupt && !allowRepair) {
-        if (previousState) {
-          state = previousState;
-          render();
-          closeModal();
-        }
-        showToast("检测到本地数据异常；为避免覆盖，请先从备份恢复");
-        return false;
-      }
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-        storageCorrupt = false;
-        return true;
-      } catch {
-        if (previousState) {
-          state = previousState;
-          render();
-          closeModal();
-        }
-        showToast("浏览器本地保存失败，请打开「数据备份」导出文件");
-        return false;
-      }
-    }
+    let db = null;
+    let authUser = null;
+    let roomChannel = null;
+    let channelRoomId = null;
+    let activeRoomId = null;
+    let isCloudRoom = false;
+    let refreshTimer;
+    let isLoadingRoom = false;
 
     function escapeHtml(value) {
       return String(value).replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
@@ -268,6 +264,186 @@
 
     function getMember(id) {
       return state.members.find(member => member.id === id);
+    }
+
+    function showWelcome(message = "") {
+      activeRoomId = null;
+      isCloudRoom = false;
+      document.getElementById("welcome").hidden = false;
+      document.getElementById("roomView").hidden = true;
+      document.getElementById("topbar").classList.add("landing");
+      const note = document.getElementById("welcomeNote");
+      note.textContent = db
+        ? "房间和积分会在所有成员的设备间同步。"
+        : "跨设备加入需要先连接 Supabase；当前网页尚未配置共享数据库。";
+      const warning = document.getElementById("cloudWarning");
+      warning.hidden = Boolean(db);
+      warning.textContent = message || "云端共享房间尚未配置。完成 Supabase 数据库设置后，好友才能通过相同房间码加入并共享积分。";
+    }
+
+    function showRoom() {
+      document.getElementById("welcome").hidden = true;
+      document.getElementById("roomView").hidden = false;
+      document.getElementById("topbar").classList.remove("landing");
+    }
+
+    function requireCloud() {
+      if (db) return true;
+      showToast("共享房间尚未启用，请先配置 Supabase 项目");
+      return false;
+    }
+
+    function cloudError(error) {
+      console.error(error);
+      showToast(error?.message || "云端请求失败，请检查网络后重试");
+    }
+
+    async function initializeCloud() {
+      showWelcome();
+      if (!SUPABASE_URL || !SUPABASE_ANON_KEY) return;
+      if (!window.supabase?.createClient) {
+        showWelcome("云端组件加载失败，请检查网络或稍后重试。");
+        return;
+      }
+      try {
+        db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+          auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+        });
+        const { data: sessionData, error: sessionError } = await db.auth.getSession();
+        if (sessionError) throw sessionError;
+        if (sessionData.session) authUser = sessionData.session.user;
+        else {
+          const { data, error } = await db.auth.signInAnonymously();
+          if (error) throw error;
+          authUser = data.user;
+        }
+        const inviteCode = new URLSearchParams(location.search).get("room");
+        const lastRoomId = localStorage.getItem(LAST_ROOM_KEY);
+        if (inviteCode) {
+          showWelcome();
+          showJoinRoom(inviteCode);
+        } else if (lastRoomId) {
+          try {
+            await loadCloudRoom(lastRoomId);
+          } catch (error) {
+            showWelcome("上次使用的房间无法读取，请确认仍有网络连接，或重新输入房间码加入。");
+          }
+        } else {
+          showWelcome();
+        }
+      } catch (error) {
+        db = null;
+        showWelcome("Supabase 连接失败。请确认 URL、匿名登录设置和数据库权限。");
+        cloudError(error);
+      }
+    }
+
+    function mapCloudEvent(event) {
+      const amount = Number(event.amount);
+      if (!Number.isSafeInteger(amount)) throw new Error("积分明细超出安全整数范围");
+      return {
+        id: event.id,
+        type: event.kind,
+        actor: event.actor_member_id,
+        from: event.kind === "transfer" ? event.actor_member_id : undefined,
+        to: event.recipient_member_id,
+        amount: event.kind === "transfer" ? Math.abs(amount) : amount,
+        note: event.note,
+        time: new Date(event.created_at).getTime()
+      };
+    }
+
+    async function loadCloudRoom(roomId, roomRecord) {
+      if (isLoadingRoom) return;
+      isLoadingRoom = true;
+      try {
+        let room = roomRecord;
+        if (!room) {
+          const { data, error } = await db.from("score_rooms").select("id,room_code,name").eq("id", roomId).single();
+          if (error) throw error;
+          room = data;
+        }
+        const [membersResponse, eventsResponse] = await Promise.all([
+          db.from("score_members").select("id,user_id,display_name,icon,points").eq("room_id", room.id).order("points", { ascending: false }),
+          db.from("score_events").select("id,actor_member_id,recipient_member_id,kind,amount,note,created_at").eq("room_id", room.id).order("created_at", { ascending: false }).limit(500)
+        ]);
+        if (membersResponse.error) throw membersResponse.error;
+        if (eventsResponse.error) throw eventsResponse.error;
+        const members = membersResponse.data.map(member => ({
+          id: member.id,
+          userId: member.user_id,
+          name: member.display_name,
+          icon: member.icon,
+          points: Number(member.points)
+        }));
+        if (members.some(member => !Number.isSafeInteger(member.points))) throw new Error("房间积分超出安全整数范围，暂时无法显示");
+        const current = members.find(member => member.userId === authUser.id);
+        if (!current) throw new Error("当前账号尚未加入此房间，请使用房间码加入");
+        const transactions = eventsResponse.data.map(mapCloudEvent);
+        state = {
+          roomName: room.name,
+          roomCode: room.room_code,
+          currentId: current.id,
+          members,
+          transactions
+        };
+        activeRoomId = room.id;
+        isCloudRoom = true;
+        localStorage.setItem(LAST_ROOM_KEY, room.id);
+        render();
+        showRoom();
+        subscribeToRoom(room.id);
+      } finally {
+        isLoadingRoom = false;
+      }
+    }
+
+    function subscribeToRoom(roomId) {
+      if (roomChannel && channelRoomId === roomId) return;
+      if (roomChannel) db.removeChannel(roomChannel);
+      roomChannel = db.channel(`score-room-${roomId}`)
+        .on("postgres_changes", { event: "*", schema: "public", table: "score_members", filter: `room_id=eq.${roomId}` }, scheduleRoomRefresh)
+        .on("postgres_changes", { event: "*", schema: "public", table: "score_events", filter: `room_id=eq.${roomId}` }, scheduleRoomRefresh)
+        .subscribe(status => {
+          if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") showToast("实时同步暂时中断，正在尝试重连");
+        });
+      channelRoomId = roomId;
+    }
+
+    function scheduleRoomRefresh() {
+      clearTimeout(refreshTimer);
+      refreshTimer = setTimeout(async () => {
+        if (!activeRoomId) return;
+        if (isLoadingRoom) {
+          scheduleRoomRefresh();
+          return;
+        }
+        try {
+          await loadCloudRoom(activeRoomId, { id: activeRoomId, room_code: state.roomCode, name: state.roomName });
+        } catch (error) {
+          cloudError(error);
+        }
+      }, 160);
+    }
+
+    async function runRoomMutation(functionName, args, successMessage) {
+      if (!db || !activeRoomId) {
+        showToast("请先创建或加入一个云端房间");
+        return false;
+      }
+      const { error } = await db.rpc(functionName, { p_room_id: activeRoomId, ...args });
+      if (error) {
+        cloudError(error);
+        return false;
+      }
+      try {
+        await loadCloudRoom(activeRoomId, { id: activeRoomId, room_code: state.roomCode, name: state.roomName });
+      } catch (error) {
+        cloudError(error);
+        return false;
+      }
+      if (successMessage) showToast(successMessage);
+      return true;
     }
 
     function formatTime(time) {
@@ -383,76 +559,25 @@
       showToast("备份文件已导出，请保存到安全的位置");
     }
 
-    function validateBackup(data) {
-      if (!data || typeof data.roomName !== "string" || typeof data.roomCode !== "string" || typeof data.currentId !== "string" || !Array.isArray(data.members) || !Array.isArray(data.transactions)) return false;
-      const memberIds = new Set();
-      for (const member of data.members) {
-        if (!member || typeof member.id !== "string" || typeof member.name !== "string" || !Number.isSafeInteger(member.points) || memberIds.has(member.id)) return false;
-        memberIds.add(member.id);
-      }
-      if (!memberIds.has(data.currentId)) return false;
-      return data.transactions.every(transaction => {
-        if (!transaction || !Number.isSafeInteger(transaction.amount) || typeof transaction.time !== "number") return false;
-        if (transaction.type === "earn" || transaction.type === "adjust") return memberIds.has(transaction.to) && memberIds.has(transaction.actor);
-        return memberIds.has(transaction.from) && memberIds.has(transaction.to);
-      });
-    }
-
-    function restoreBackup(file) {
-      const reader = new FileReader();
-      reader.addEventListener("load", () => {
-        try {
-          const imported = JSON.parse(String(reader.result));
-          if (!validateBackup(imported)) {
-            showToast("备份文件格式不正确，现有数据未更改");
-            return;
-          }
-          const previous = structuredClone(state);
-          state = imported;
-          if (!saveState(previous, true)) return;
-          render();
-          if (storageCorrupt) showToast("本地积分数据无法读取，未覆盖原数据；请先从备份恢复");
-          showToast("数据已从备份恢复");
-        } catch (error) {
-          if (error instanceof SyntaxError) {
-            showToast("无法读取备份文件，现有数据未更改");
-            return;
-          }
-          throw error;
-        }
-      });
-      reader.addEventListener("error", () => showToast("读取备份文件失败，请重试"));
-      reader.readAsText(file);
-    }
-
     function showRoomMenu() {
-      openModal("房间与数据", "数据保存在当前浏览器。可导出备份文件，换设备或清理浏览器前请先备份。", `
+      openModal("房间与数据", "房间、成员和积分明细保存在云端，所有成员可跨设备同步。建议定期导出数据备份。", `
         <div class="quick-actions" style="padding:0;grid-template-columns:1fr 1fr">
           <button class="button" id="menuCreateRoom">＋ 新建房间</button>
           <button class="button" id="menuJoinRoom">加入房间</button>
           <button class="button quiet" id="menuBackup">导出备份</button>
-          <button class="button" id="menuRestore">恢复备份</button>
         </div>
-        <div class="modal-actions"><button class="button" id="persistStorageBtn">保护本机数据</button></div>
-        <p class="center-copy">本机数据无法自动同步到其他设备。浏览器清除网站数据时，本地记录也可能被删除。</p>`);
+        <div class="modal-actions"><button class="button" id="persistStorageBtn">退出当前房间</button></div>
+        <p class="center-copy">备份可以保存到本机；云端数据暂不支持从备份导入。退出后房间不会删除，可再次输入房间码加入。</p>`);
       document.getElementById("menuCreateRoom").addEventListener("click", () => { closeModal(); showCreateRoom(); });
       document.getElementById("menuJoinRoom").addEventListener("click", () => { closeModal(); showJoinRoom(); });
       document.getElementById("menuBackup").addEventListener("click", exportBackup);
-      document.getElementById("menuRestore").addEventListener("click", () => {
-        closeModal();
-        document.getElementById("restoreFile").click();
-      });
       document.getElementById("persistStorageBtn").addEventListener("click", async () => {
-        if (!navigator.storage || typeof navigator.storage.persist !== "function") {
-          showToast("当前浏览器不支持本地存储保护，请定期导出备份");
-          return;
-        }
-        try {
-          const granted = await navigator.storage.persist();
-          showToast(granted ? "浏览器已保护本站数据，仍建议定期导出备份" : "浏览器未授予存储保护，请定期导出备份");
-        } catch {
-          showToast("无法请求浏览器存储保护，请定期导出备份");
-        }
+        if (roomChannel) db.removeChannel(roomChannel);
+        roomChannel = null;
+        channelRoomId = null;
+        localStorage.removeItem(LAST_ROOM_KEY);
+        closeModal();
+        showWelcome();
       });
     }
 
@@ -475,12 +600,16 @@
     }
 
     function invite() {
+      if (!activeRoomId) {
+        showToast("请先创建或加入一个房间");
+        return;
+      }
       const inviteUrl = new URL(location.href);
       inviteUrl.searchParams.set("room", state.roomCode);
       openModal("邀请好友加入", `分享房间码，或者让好友扫描二维码加入「${escapeHtml(state.roomName)}」。`, `
         <div class="qr-wrap" id="qrCode"><span style="color:#aaa;font-size:12px">二维码加载中…</span></div>
         <div class="join-code">${escapeHtml(state.roomCode)}</div>
-        <div class="center-copy">房间码有效 · 好友输入房间码即可加入<br>当前为本地演示，二维码仅携带房间链接和房间码</div>
+        <div class="center-copy">好友输入房间码即可加入<br>二维码打开后可直接进入这个云端房间</div>
         <div class="modal-actions"><button class="button" data-close>稍后</button><button class="button primary" id="shareLinkBtn">复制邀请链接</button></div>`);
       document.getElementById("shareLinkBtn").addEventListener("click", () => copyText(inviteUrl.href));
       const drawCode = () => {
@@ -528,13 +657,11 @@
           return;
         }
         const previous = structuredClone(state);
-        current.points -= amount;
-        recipient.points += amount;
-        state.transactions.unshift({ from: current.id, to: recipient.id, amount, note, time: Date.now() });
-        if (!saveState(previous)) return;
-        render();
-        closeModal();
-        showToast(`已转给 ${recipient.name} ${amount} 分`);
+        runRoomMutation("transfer_score_points", {
+          p_recipient_member_id: recipient.id,
+          p_amount: amount,
+          p_note: note
+        }, `已转给 ${recipient.name} ${amount} 分`).then(success => { if (success) closeModal(); });
       });
     }
 
@@ -556,13 +683,11 @@
           showToast("积分数量无效或超出整数范围");
           return;
         }
-        const previous = structuredClone(state);
-        recipient.points += amount;
-        state.transactions.unshift({ type: "earn", actor: current.id, to: recipient.id, amount, note, time: Date.now() });
-        if (!saveState(previous)) return;
-        render();
-        closeModal();
-        showToast(`已为 ${recipient.name} 记入 ${amount} 分`);
+        runRoomMutation("add_score_points", {
+          p_recipient_member_id: recipient.id,
+          p_amount: amount,
+          p_note: note
+        }, `已为 ${recipient.name} 记入 ${amount} 分`).then(success => { if (success) closeModal(); });
       });
     }
 
@@ -586,102 +711,93 @@
           showToast("请输入有效的非零整数，且结果需在安全范围内");
           return;
         }
-        const previous = structuredClone(state);
-        member.points += amount;
-        state.transactions.unshift({ type: "adjust", actor: state.currentId, to: member.id, amount, note, time: Date.now() });
-        if (!saveState(previous)) return;
-        render();
-        closeModal();
-        showToast(`${member.name} 的积分已${amount > 0 ? "增加" : "减少"} ${Math.abs(amount)} 分`);
+        runRoomMutation("adjust_score_points", {
+          p_recipient_member_id: member.id,
+          p_delta: amount,
+          p_note: note
+        }, `${member.name} 的积分已${amount > 0 ? "增加" : "减少"} ${Math.abs(amount)} 分`).then(success => { if (success) closeModal(); });
       });
     }
 
     function showAddMember() {
-      openModal("添加房间伙伴", "新伙伴将从 0 分开始。需要时可手动调整积分。", `
-        <form id="addMemberForm">
-          <div class="field"><label for="memberName">伙伴昵称</label><input id="memberName" maxlength="16" placeholder="请输入昵称" required></div>
-          <div class="modal-actions"><button type="button" class="button" data-close>取消</button><button type="submit" class="button primary">添加伙伴</button></div>
-        </form>`);
-      document.getElementById("addMemberForm").addEventListener("submit", event => {
-        event.preventDefault();
-        const name = document.getElementById("memberName").value.trim();
-        if (!name || state.members.some(member => member.name === name)) {
-          showToast("请输入昵称，且昵称不能重复");
-          return;
-        }
-        const previous = structuredClone(state);
-        state.members.push({ id: `m-${crypto.randomUUID()}`, name, points: 0, icon: icons[Math.floor(Math.random() * icons.length)] });
-        if (!saveState(previous)) return;
-        render();
-        closeModal();
-        showToast(`${name} 已加入房间`);
-      });
+      invite();
     }
 
-    function showJoinRoom() {
-      openModal("加入记分房间", "输入好友分享的房间码，体验房间加入流程。", `
+    function showJoinRoom(prefillCode = "") {
+      if (!requireCloud()) return;
+      const suggestedName = localStorage.getItem("shifen-nickname-v1") || "";
+      openModal("加入记分房间", "输入好友分享的房间码，加入后即可查看同一房间的成员和积分。", `
         <form id="joinForm">
-          <div class="field"><label for="joinCodeInput">房间码</label><input id="joinCodeInput" maxlength="8" placeholder="例如 PKX7" required></div>
+          <div class="field"><label for="joinCodeInput">房间码</label><input id="joinCodeInput" maxlength="8" placeholder="例如 A1B2C3" value="${escapeHtml(prefillCode)}" required></div>
+          <div class="field"><label for="joinNickname">你的昵称</label><input id="joinNickname" maxlength="24" value="${escapeHtml(suggestedName)}" placeholder="请输入在房间显示的昵称" required></div>
           <div class="modal-actions"><button type="button" class="button" data-close>取消</button><button type="submit" class="button primary">加入房间</button></div>
         </form>`);
-      document.getElementById("joinForm").addEventListener("submit", event => {
+      document.getElementById("joinForm").addEventListener("submit", async event => {
         event.preventDefault();
         const code = document.getElementById("joinCodeInput").value.trim().toUpperCase();
-        if (code.length < 4) {
-          showToast("请输入至少 4 位房间码");
+        const memberName = document.getElementById("joinNickname").value.trim();
+        if (code.length < 4 || !memberName) {
+          showToast("请填写有效房间码和昵称");
           return;
         }
-        if (code === state.roomCode) {
+        try {
+          const { data, error } = await db.rpc("join_score_room", {
+            p_room_code: code,
+            p_member_name: memberName,
+            p_icon: icons[Math.floor(Math.random() * icons.length)]
+          });
+          if (error) throw error;
+          const room = Array.isArray(data) ? data[0] : data;
+          if (!room?.id) throw new Error("房间加入失败，请确认房间码后重试");
+          localStorage.setItem("shifen-nickname-v1", memberName);
+          await loadCloudRoom(room.id, room);
           closeModal();
-          showToast("你已经在这个房间里啦");
-          return;
+          showToast(`已加入「${room.name}」`);
+        } catch (error) {
+          cloudError(error);
         }
-        const previous = structuredClone(state);
-        state.roomCode = code;
-        state.roomName = "新加入的房间";
-        state.members = [{ id: state.currentId, name: getMember(state.currentId).name, points: 0, icon: getMember(state.currentId).icon }];
-        state.transactions = [];
-        if (!saveState(previous)) return;
-        render();
-        closeModal();
-        showToast("演示房间已切换；跨设备同步需接入服务端");
       });
     }
 
     function showCreateRoom() {
-      openModal("新建记分房间", "给房间起个名字，邀请伙伴一起记分。创建后会在本机开启一个新的演示房间。", `
+      if (!requireCloud()) return;
+      const suggestedName = localStorage.getItem("shifen-nickname-v1") || "";
+      openModal("新建记分房间", "创建后会生成房间码。邀请伙伴扫码或输入房间码，即可进入同一房间。", `
         <form id="createRoomForm">
           <div class="field"><label for="newRoomName">房间名称</label><input id="newRoomName" maxlength="20" placeholder="例如：周末小聚" required></div>
+          <div class="field"><label for="creatorNickname">你的昵称</label><input id="creatorNickname" maxlength="24" value="${escapeHtml(suggestedName)}" placeholder="请输入在房间显示的昵称" required></div>
           <div class="modal-actions"><button type="button" class="button" data-close>取消</button><button type="submit" class="button primary">创建房间</button></div>
         </form>`);
-      document.getElementById("createRoomForm").addEventListener("submit", event => {
+      document.getElementById("createRoomForm").addEventListener("submit", async event => {
         event.preventDefault();
         const roomName = document.getElementById("newRoomName").value.trim();
-        if (!roomName) {
-          showToast("请输入房间名称");
+        const memberName = document.getElementById("creatorNickname").value.trim();
+        if (!roomName || !memberName) {
+          showToast("请填写房间名称和昵称");
           return;
         }
-        const previous = structuredClone(state);
-        const current = getMember(state.currentId);
-        state.roomName = roomName;
-        state.roomCode = crypto.randomUUID().replaceAll("-", "").slice(0, 4).toUpperCase();
-        state.members = [{ id: state.currentId, name: current.name, points: 0, icon: current.icon }];
-        state.transactions = [];
-        if (!saveState(previous)) return;
-        render();
-        closeModal();
-        showToast("房间已创建，邀请伙伴加入吧");
+        try {
+          const { data, error } = await db.rpc("create_score_room", {
+            p_name: roomName,
+            p_member_name: memberName,
+            p_icon: icons[Math.floor(Math.random() * icons.length)]
+          });
+          if (error) throw error;
+          const room = Array.isArray(data) ? data[0] : data;
+          if (!room?.id) throw new Error("房间创建失败，请重试");
+          localStorage.setItem("shifen-nickname-v1", memberName);
+          await loadCloudRoom(room.id, room);
+          closeModal();
+          showToast("房间已创建，可以邀请伙伴加入");
+        } catch (error) {
+          cloudError(error);
+        }
       });
     }
 
     document.getElementById("newRoomBtn").addEventListener("click", showCreateRoom);
     document.getElementById("roomMenuBtn").addEventListener("click", showRoomMenu);
     document.getElementById("backupBtn").addEventListener("click", exportBackup);
-    document.getElementById("restoreFile").addEventListener("change", event => {
-      const file = event.currentTarget.files[0];
-      if (file) restoreBackup(file);
-      event.currentTarget.value = "";
-    });
     document.getElementById("inviteBtn").addEventListener("click", invite);
     document.getElementById("joinRoomBtn").addEventListener("click", showJoinRoom);
     document.getElementById("addMemberBtn").addEventListener("click", showAddMember);
@@ -690,19 +806,9 @@
     document.getElementById("copyCodeBtn").addEventListener("click", () => copyText(state.roomCode));
     document.addEventListener("keydown", event => { if (event.key === "Escape") closeModal(); });
 
-    const invitedRoom = new URLSearchParams(location.search).get("room");
-    if (invitedRoom && invitedRoom.toUpperCase() !== state.roomCode) {
-      document.getElementById("joinRoomBtn").addEventListener("click", () => {
-        const input = document.getElementById("joinCodeInput");
-        if (input) input.value = invitedRoom;
-      }, { once: true });
-      setTimeout(() => {
-        showJoinRoom();
-        const input = document.getElementById("joinCodeInput");
-        if (input) input.value = invitedRoom;
-      }, 100);
-    }
-    render();
+    document.getElementById("welcomeCreateBtn").addEventListener("click", showCreateRoom);
+    document.getElementById("welcomeJoinBtn").addEventListener("click", () => showJoinRoom(new URLSearchParams(location.search).get("room") || ""));
+    initializeCloud();
   </script>
 </body>
 </html>
