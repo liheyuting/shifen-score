@@ -257,6 +257,7 @@
     let isCloudRoom = false;
     let refreshTimer;
     let isLoadingRoom = false;
+    let inviteJoinFlow = false;
 
     function escapeHtml(value) {
       return String(value).replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
@@ -320,8 +321,7 @@
         const inviteCode = new URLSearchParams(location.search).get("room");
         const lastRoomId = localStorage.getItem(LAST_ROOM_KEY);
         if (inviteCode) {
-          showWelcome();
-          showJoinRoom(inviteCode);
+          showJoinRoom(inviteCode, true);
         } else if (lastRoomId) {
           try {
             await loadCloudRoom(lastRoomId);
@@ -547,6 +547,8 @@
       const root = document.getElementById("modalRoot");
       root.hidden = true;
       root.innerHTML = "";
+      if (inviteJoinFlow && !activeRoomId) showWelcome();
+      inviteJoinFlow = false;
     }
 
     function exportBackup() {
@@ -723,18 +725,20 @@
       invite();
     }
 
-    function showJoinRoom(prefillCode = "") {
+    function showJoinRoom(prefillCode = "", fromInvite = false) {
       if (!requireCloud()) return;
+      inviteJoinFlow = fromInvite;
+      if (fromInvite) document.getElementById("welcome").hidden = true;
       const suggestedName = localStorage.getItem("shifen-nickname-v1") || "";
-      openModal("加入记分房间", "输入好友分享的房间码，加入后即可查看同一房间的成员和积分。", `
+      openModal("加入记分房间", fromInvite ? "请输入你的昵称，即可加入好友的房间。" : "输入好友分享的房间码，加入后即可查看同一房间的成员和积分。", `
         <form id="joinForm">
-          <div class="field"><label for="joinCodeInput">房间码</label><input id="joinCodeInput" maxlength="8" placeholder="例如 A1B2C3" value="${escapeHtml(prefillCode)}" required></div>
+          ${fromInvite ? `<div class="center-copy">房间码：${escapeHtml(prefillCode.toUpperCase())}</div>` : `<div class="field"><label for="joinCodeInput">房间码</label><input id="joinCodeInput" maxlength="8" placeholder="例如 A1B2C3" value="${escapeHtml(prefillCode)}" required></div>`}
           <div class="field"><label for="joinNickname">你的昵称</label><input id="joinNickname" maxlength="24" value="${escapeHtml(suggestedName)}" placeholder="请输入在房间显示的昵称" required></div>
           <div class="modal-actions"><button type="button" class="button" data-close>取消</button><button type="submit" class="button primary">加入房间</button></div>
         </form>`);
       document.getElementById("joinForm").addEventListener("submit", async event => {
         event.preventDefault();
-        const code = document.getElementById("joinCodeInput").value.trim().toUpperCase();
+        const code = (fromInvite ? prefillCode : document.getElementById("joinCodeInput").value).trim().toUpperCase();
         const memberName = document.getElementById("joinNickname").value.trim();
         if (code.length < 4 || !memberName) {
           showToast("请填写有效房间码和昵称");
