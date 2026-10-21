@@ -77,6 +77,9 @@
     .member { display: grid; grid-template-columns: 38px minmax(0, 1fr) auto auto; align-items: center; gap: 12px; min-height: 67px; border-top: 1px solid #f5f2ef; }
     .avatar { display: grid; width: 38px; height: 38px; place-items: center; border-radius: 50%; background: #f2f0ed; font-size: 18px; }
     .avatar.you { background: #fff0e8; }
+    .member-identity { display: flex; min-width: 0; align-items: center; gap: 10px; padding: 0; border: 0; color: inherit; background: transparent; text-align: left; }
+    .member-identity:disabled { cursor: default; }
+    .member-identity:not(:disabled):hover .member-name { color: var(--orange-dark); }
     .member-name { display: block; overflow: hidden; font-size: 13px; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
     .member-hint { display: block; overflow: hidden; margin-top: 4px; color: var(--muted); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
     .score-value { min-width: 56px; text-align: right; font-size: 15px; font-weight: 800; }
@@ -147,8 +150,9 @@
       .quick-actions { padding: 0 13px 14px; }
       .quick-actions { gap: 7px; }
       .quick-actions .button { gap: 5px; padding: 0 6px; font-size: 12px; }
-      .member { grid-template-columns: 24px 34px minmax(0, 1fr) auto auto; gap: 7px; min-height: 62px; }
+      .member { grid-template-columns: 24px minmax(0, 1fr) auto auto; gap: 7px; min-height: 62px; }
       .avatar { width: 34px; height: 34px; font-size: 16px; }
+      .member-identity { gap: 7px; }
       .score-value { min-width: 42px; font-size: 14px; }
       .score-adjust { padding: 7px 5px; font-size: 11px; }
       .activity-list { padding-bottom: 8px; }
@@ -513,14 +517,17 @@
       document.getElementById("memberList").innerHTML = ranked.map((member, index) => `
         <div class="member">
           <span class="rank${index === 0 ? " first" : ""}">${String(index + 1).padStart(2, "0")}</span>
-          <span class="avatar${member.id === state.currentId ? " you" : ""}">${escapeHtml(member.icon || "🙂")}</span>
-          <span><span class="member-name">${escapeHtml(member.name)}${member.id === state.currentId ? "（我）" : ""}</span><span class="member-hint">${allTied ? "当前积分并列" : index === 0 ? "本房间积分领先" : member.points < 0 ? "积分可继续积累" : "继续积累，越来越棒"}</span></span>
+          <button class="member-identity" type="button" data-transfer="${escapeHtml(member.id)}"${member.id === state.currentId ? " disabled" : ""} aria-label="${member.id === state.currentId ? "这是我" : `转积分给${escapeHtml(member.name)}`}">
+            <span class="avatar${member.id === state.currentId ? " you" : ""}">${escapeHtml(member.icon || "🙂")}</span>
+            <span><span class="member-name">${escapeHtml(member.name)}${member.id === state.currentId ? "（我）" : ""}</span><span class="member-hint">${allTied ? "当前积分并列" : index === 0 ? "本房间积分领先" : member.points < 0 ? "积分可继续积累" : "继续积累，越来越棒"}</span></span>
+          </button>
           <button class="score-adjust" type="button" data-adjust="${escapeHtml(member.id)}" aria-label="调整${escapeHtml(member.name)}的积分">调整</button>
           <span class="score-value">${member.points.toLocaleString("zh-CN")} <span class="score-unit">分</span></span>
         </div>`).join("");
       const history = [...state.transactions].sort((a, b) => b.time - a.time);
       document.getElementById("activityList").innerHTML = history.map(transactionMarkup).join("") || '<div class="empty">还没有积分记录</div>';
       document.querySelectorAll("[data-adjust]").forEach(button => button.addEventListener("click", () => showAdjustPoints(button.dataset.adjust)));
+      document.querySelectorAll("[data-transfer]").forEach(button => button.addEventListener("click", () => showTransfer(button.dataset.transfer)));
     }
 
     function showToast(message) {
@@ -635,16 +642,20 @@
       }
     }
 
-    function showTransfer() {
+    function showTransfer(recipientId = "") {
       const current = getMember(state.currentId);
       const friends = state.members.filter(member => member.id !== state.currentId);
       if (!friends.length) {
         showToast("先添加一位伙伴，再转出积分");
         return;
       }
+      if (recipientId && !friends.some(member => member.id === recipientId)) {
+        showToast("找不到这位房间伙伴");
+        return;
+      }
       openModal("转出积分", `当前积分 ${current.points} 分。转赠后立即更新双方积分；积分允许为负。`, `
         <form id="transferForm">
-          <div class="field"><label for="transferTo">转给谁</label><select id="transferTo" required>${friends.map(member => `<option value="${escapeHtml(member.id)}">${escapeHtml(member.name)} · ${member.points} 分</option>`).join("")}</select></div>
+          <div class="field"><label for="transferTo">转给谁</label><select id="transferTo" required>${friends.map(member => `<option value="${escapeHtml(member.id)}"${member.id === recipientId ? " selected" : ""}>${escapeHtml(member.name)} · ${member.points} 分</option>`).join("")}</select></div>
           <div class="field"><label for="transferAmount">转出积分</label><input id="transferAmount" type="number" min="1" step="1" placeholder="请输入正整数，余额可转为负数" required></div>
           <div class="field"><label for="transferNote">备注（选填）</label><input id="transferNote" maxlength="32" placeholder="例如：今天打卡完成啦"></div>
           <div class="modal-actions"><button type="button" class="button" data-close>取消</button><button type="submit" class="button primary">确认转出</button></div>
