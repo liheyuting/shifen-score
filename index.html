@@ -25,17 +25,19 @@
     body { margin: 0; color: var(--ink); background: var(--background); }
     button, input, select { font: inherit; }
     button { cursor: pointer; }
-    .page { width: min(1080px, 100% - 48px); margin: 0 auto; padding: 26px 0 48px; }
-    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: 34px; }
-    .brand { display: flex; align-items: center; gap: 11px; font-size: 20px; font-weight: 800; letter-spacing: -.5px; }
-    .brand-mark { display: grid; width: 38px; height: 38px; place-items: center; color: white; background: var(--orange); border-radius: 13px; font-size: 22px; }
-    .top-actions { display: flex; align-items: center; gap: 10px; }
+    .page { width: min(1080px, 100% - 48px); margin: 0 auto; padding: 18px 0 36px; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-bottom: 20px; }
+    .brand { display: flex; align-items: center; gap: 9px; font-size: 18px; font-weight: 800; letter-spacing: -.5px; }
+    .brand-mark { display: grid; width: 34px; height: 34px; place-items: center; color: white; background: var(--orange); border-radius: 11px; font-size: 19px; }
+    .top-actions { display: flex; align-items: center; gap: 8px; }
     .button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 42px; padding: 0 16px; border: 1px solid var(--line); border-radius: 12px; color: var(--ink); background: white; font-weight: 650; transition: .18s ease; }
     .button:hover { transform: translateY(-1px); border-color: #e3d8d0; }
     .button.primary { color: white; border-color: var(--orange); background: var(--orange); }
     .button.primary:hover { border-color: var(--orange-dark); background: var(--orange-dark); }
     .button.quiet { color: var(--orange-dark); border-color: #f7d9ca; background: #fff8f4; }
     .button.small { min-height: 36px; padding: 0 12px; font-size: 13px; }
+    .button.icon-button { width: 38px; padding: 0; font-size: 18px; }
+    .room-menu-button { display: inline-flex; }
     .hero { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 250px; gap: 34px; overflow: hidden; padding: 37px 40px; border: 1px solid #f4e9e1; border-radius: 24px; background: linear-gradient(115deg, #fff 0%, #fff 63%, #fff2e9 100%); box-shadow: 0 10px 35px #6333130b; }
     .hero::after { position: absolute; right: 148px; bottom: -105px; width: 280px; height: 280px; border: 1px solid #f5dfd2; border-radius: 50%; content: ""; pointer-events: none; }
     .eyebrow { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13px; font-weight: 650; }
@@ -56,9 +58,7 @@
     .card-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 22px 23px 15px; }
     .card-title { margin: 0; font-size: 16px; font-weight: 760; }
     .card-subtitle { margin: 5px 0 0; color: var(--muted); font-size: 12px; }
-    .tabs { display: flex; gap: 17px; align-items: center; }
-    .tab { padding: 5px 0; border: 0; color: var(--muted); background: transparent; font-size: 12px; }
-    .tab.active { color: var(--orange-dark); font-weight: 750; }
+    .tabs { display: flex; align-items: center; color: var(--orange-dark); font-size: 12px; font-weight: 750; }
     .member-list { padding: 0 23px 12px; }
     .member { display: grid; grid-template-columns: 38px minmax(0, 1fr) auto auto; align-items: center; gap: 12px; min-height: 67px; border-top: 1px solid #f5f2ef; }
     .avatar { display: grid; width: 38px; height: 38px; place-items: center; border-radius: 50%; background: #f2f0ed; font-size: 18px; }
@@ -67,6 +67,8 @@
     .member-hint { display: block; overflow: hidden; margin-top: 4px; color: var(--muted); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
     .score-value { min-width: 56px; text-align: right; font-size: 15px; font-weight: 800; }
     .score-unit { color: var(--muted); font-size: 11px; font-weight: 500; }
+    .score-adjust { padding: 7px; border: 0; border-radius: 8px; color: var(--orange-dark); background: transparent; font-size: 12px; font-weight: 700; }
+    .score-adjust:hover { background: var(--peach); }
     .rank { width: 23px; color: #b4aea8; text-align: center; font-size: 12px; font-weight: 750; }
     .rank.first { color: #e3a33a; }
     .activity-list { padding: 0 23px 14px; }
@@ -80,9 +82,6 @@
     .activity-points.minus { color: var(--orange-dark); }
     .quick-actions { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; padding: 0 23px 22px; }
     .quick-actions .button { min-height: 46px; }
-    .tip { display: flex; gap: 11px; margin-top: 19px; padding: 15px 17px; border: 1px solid #f4eadf; border-radius: 15px; color: #85796e; background: #fffdf9; font-size: 12px; line-height: 1.7; }
-    .tip b { color: #5c5046; }
-    .footer { display: flex; justify-content: space-between; gap: 15px; margin-top: 22px; color: #aaa29c; font-size: 11px; }
     .modal-backdrop { position: fixed; z-index: 5; inset: 0; display: grid; place-items: center; padding: 18px; background: #201a16a6; }
     .modal { width: min(430px, 100%); max-height: calc(100vh - 36px); overflow: auto; padding: 26px; border-radius: 22px; background: white; box-shadow: 0 20px 70px #21140f2e; }
     .modal-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
@@ -103,36 +102,40 @@
     [hidden] { display: none !important; }
 
     @media (max-width: 740px) {
-      .page { width: min(100% - 28px, 560px); padding-top: 16px; }
-      .topbar { margin-bottom: 18px; }
-      .brand { font-size: 17px; }
-      .brand-mark { width: 34px; height: 34px; }
+      .page { width: min(100% - 24px, 560px); padding: 9px 0 24px; }
+      .topbar { margin-bottom: 12px; }
+      .brand { gap: 7px; font-size: 15px; }
+      .brand-mark { width: 29px; height: 29px; border-radius: 9px; font-size: 16px; }
+      .brand > span:last-child > span { display: none; }
       .top-actions { gap: 6px; }
-      .top-actions .button { min-height: 37px; padding: 0 10px; font-size: 12px; white-space: nowrap; }
-      .brand { flex-shrink: 0; }
-      .top-actions { flex-shrink: 0; }
-      .hero { grid-template-columns: 1fr auto; gap: 12px; padding: 23px 20px; border-radius: 19px; }
+      .top-actions .button { min-height: 34px; padding: 0 9px; font-size: 11px; white-space: nowrap; }
+      .top-actions #newRoomBtn, .top-actions #joinRoomBtn, .top-actions #backupBtn { display: none; }
+      .room-menu-button { display: inline-flex; }
+      .hero { grid-template-columns: minmax(0, 1fr) auto; gap: 10px; padding: 17px 15px; border-radius: 17px; }
       .hero::after { right: 23px; }
-      h1 { margin-top: 11px; font-size: 27px; }
-      .hero-copy { max-width: 240px; font-size: 12px; line-height: 1.6; }
-      .hero-stats { gap: 18px; margin-top: 23px; }
-      .stat + .stat { padding-left: 18px; }
-      .stat-number { font-size: 22px; }
-      .stat-label { font-size: 11px; }
-      .hero-side { min-height: 125px; padding-left: 15px; }
-      .my-score { font-size: 42px; }
+      h1 { margin: 8px 0 5px; font-size: 23px; }
+      .hero-copy { max-width: 220px; font-size: 11px; line-height: 1.5; }
+      .hero-stats { gap: 12px; margin-top: 15px; }
+      .stat + .stat { padding-left: 12px; }
+      .stat-number { font-size: 19px; }
+      .stat-label { font-size: 10px; }
+      .hero-side { min-height: 108px; padding-left: 11px; }
+      .my-score { font-size: 34px; }
+      .my-score-label { font-size: 11px; }
       .room-meta { flex-wrap: wrap; gap: 5px; font-size: 10px; }
-      .main-grid { grid-template-columns: 1fr; gap: 14px; margin-top: 14px; }
-      .card-head { padding: 18px 17px 12px; }
-      .member-list, .activity-list { padding-right: 17px; padding-left: 17px; }
-      .quick-actions { padding: 0 17px 17px; }
+      .main-grid { grid-template-columns: 1fr; gap: 12px; margin-top: 12px; }
+      .card-head { padding: 15px 14px 11px; }
+      .member-list, .activity-list { padding-right: 13px; padding-left: 13px; }
+      .quick-actions { padding: 0 13px 14px; }
       .quick-actions { gap: 7px; }
       .quick-actions .button { gap: 5px; padding: 0 6px; font-size: 12px; }
-      .tip { margin-top: 14px; padding: 12px 14px; }
-      .footer { font-size: 10px; }
+      .member { grid-template-columns: 24px 34px minmax(0, 1fr) auto auto; gap: 7px; min-height: 62px; }
+      .avatar { width: 34px; height: 34px; font-size: 16px; }
+      .score-value { min-width: 42px; font-size: 14px; }
+      .score-adjust { padding: 7px 5px; font-size: 11px; }
+      .activity-list { padding-bottom: 8px; }
     }
     @media (max-width: 390px) {
-      .brand > span:last-child > span { display: none; }
       .top-actions .button { padding: 0 8px; }
       .hero { padding-right: 15px; padding-left: 16px; }
       .hero-side { padding-left: 10px; }
@@ -148,6 +151,8 @@
       <div class="top-actions">
         <button class="button small" id="newRoomBtn">＋ 新建房间</button>
         <button class="button small" id="joinRoomBtn">加入房间</button>
+        <button class="button small" id="backupBtn">数据备份</button>
+        <button class="button small room-menu-button" id="roomMenuBtn" aria-label="房间和数据管理">管理</button>
         <button class="button small primary" id="inviteBtn">＋ 邀请好友</button>
       </div>
     </header>
@@ -159,7 +164,7 @@
         <p class="hero-copy">一起记下每个小目标，让努力都被看见。</p>
         <div class="hero-stats">
           <div class="stat"><span class="stat-number" id="memberCount">0</span><span class="stat-label">位伙伴</span></div>
-          <div class="stat"><span class="stat-number" id="totalPoints">0</span><span class="stat-label">累计积分</span></div>
+          <div class="stat"><span class="stat-number" id="totalPoints">0</span><span class="stat-label">净积分</span></div>
           <div class="stat"><span class="stat-number" id="myRank">—</span><span class="stat-label">我的排名</span></div>
         </div>
         <div class="room-meta">房间码 <span class="room-code" id="roomCode"></span><button class="button small" id="copyCodeBtn">复制</button></div>
@@ -173,30 +178,25 @@
     <section class="main-grid">
       <article class="card">
         <div class="card-head">
-          <div><h2 class="card-title">房间伙伴</h2><p class="card-subtitle">每一分，都是一起努力的证明</p></div>
-          <div class="tabs" role="tablist"><button class="tab active" id="rankTab" role="tab" aria-selected="true">积分排行</button><button class="tab" id="historyTab" role="tab" aria-selected="false">积分明细</button></div>
+          <div><h2 class="card-title">房间伙伴</h2><p class="card-subtitle">点击「调整」可手动修改积分</p></div>
+          <div class="tabs">积分排行</div>
         </div>
         <div class="member-list" id="memberList"></div>
-        <div class="activity-list" id="activityList" hidden></div>
         <div class="quick-actions">
           <button class="button primary" id="addPointsBtn">＋ 记积分</button>
           <button class="button quiet" id="transferBtn">↗ 转出积分</button>
           <button class="button" id="addMemberBtn">＋ 添加伙伴</button>
         </div>
       </article>
-
-      <aside>
-        <article class="card">
-          <div class="card-head">
-            <div><h2 class="card-title">最近动态</h2><p class="card-subtitle">房间里的积分变化</p></div>
-          </div>
-          <div class="activity-list" id="recentList"></div>
-        </article>
-        <div class="tip"><span>✦</span><span><b>积分只在房间内流转</b><br>点「转出积分」选择伙伴和数量。拾分仅用于记录与互动，不涉及金钱。</span></div>
-      </aside>
+      <article class="card">
+        <div class="card-head">
+          <div><h2 class="card-title">积分明细</h2><p class="card-subtitle">记分、调整和转赠记录</p></div>
+        </div>
+        <div class="activity-list" id="activityList"></div>
+      </article>
     </section>
-    <footer class="footer"><span>拾分 · 轻松记录每一份小小成就</span><span>演示版 · 数据保存在当前浏览器</span></footer>
   </main>
+  <input id="restoreFile" type="file" accept="application/json,.json" hidden>
   <div id="modalRoot" hidden></div>
   <div class="toast" id="toast" hidden></div>
 
@@ -208,17 +208,14 @@
       roomCode: "PKX7",
       currentId: "me",
       members: [
-        { id: "me", name: "林间风", points: 459, icon: "🌿" },
-        { id: "m2", name: "周小满", points: 528, icon: "☀️" },
-        { id: "m3", name: "阿澈", points: 386, icon: "🍊" }
+        { id: "me", name: "林间风", points: 0, icon: "🌿" },
+        { id: "m2", name: "周小满", points: 0, icon: "☀️" },
+        { id: "m3", name: "阿澈", points: 0, icon: "🍊" }
       ],
-      transactions: [
-        { from: "m2", to: "m3", amount: 12, note: "今天也要加油", time: Date.now() - 1800000 },
-        { from: "me", to: "m2", amount: 8, note: "一起完成运动打卡", time: Date.now() - 7200000 },
-        { from: "m3", to: "me", amount: 15, note: "谢谢帮忙", time: Date.now() - 86400000 }
-      ]
+      transactions: []
     };
 
+    let storageCorrupt = false;
     let state = loadState();
     let toastTimer;
 
@@ -233,15 +230,36 @@
         return parsed;
       } catch (error) {
         if (error instanceof SyntaxError) {
-          localStorage.removeItem(STORAGE_KEY);
+          storageCorrupt = true;
           return structuredClone(initialState);
         }
         throw error;
       }
     }
 
-    function saveState() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    function saveState(previousState, allowRepair = false) {
+      if (storageCorrupt && !allowRepair) {
+        if (previousState) {
+          state = previousState;
+          render();
+          closeModal();
+        }
+        showToast("检测到本地数据异常；为避免覆盖，请先从备份恢复");
+        return false;
+      }
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        storageCorrupt = false;
+        return true;
+      } catch {
+        if (previousState) {
+          state = previousState;
+          render();
+          closeModal();
+        }
+        showToast("浏览器本地保存失败，请打开「数据备份」导出文件");
+        return false;
+      }
     }
 
     function escapeHtml(value) {
@@ -275,6 +293,20 @@
           <div class="activity-points">${mine ? "+" : ""}${transaction.amount}</div>
         </div>`;
       }
+      if (transaction.type === "adjust") {
+        const actor = getMember(transaction.actor);
+        const recipient = getMember(transaction.to);
+        if (!actor || !recipient) return "";
+        const positive = transaction.amount > 0;
+        return `<div class="activity">
+          <div class="activity-icon${positive ? "" : " minus"}">${positive ? "＋" : "−"}</div>
+          <div class="activity-detail">
+            <div class="activity-text">${escapeHtml(actor.name)} 调整了 ${escapeHtml(recipient.name)} 的积分${actor.id === state.currentId ? " <span style='color:#aaa'>(我调整)</span>" : ""}<br><span style="color:#8d8680">${escapeHtml(transaction.note || "手动调整")}</span></div>
+            <div class="activity-time">${formatTime(transaction.time)}</div>
+          </div>
+          <div class="activity-points${positive ? "" : " minus"}">${positive ? "+" : ""}${transaction.amount}</div>
+        </div>`;
+      }
       const from = getMember(transaction.from);
       const to = getMember(transaction.to);
       if (!from || !to) return "";
@@ -294,24 +326,25 @@
     function render() {
       const current = getMember(state.currentId);
       const ranked = [...state.members].sort((a, b) => b.points - a.points);
+      const allTied = ranked.length > 1 && ranked.every(member => member.points === ranked[0].points);
       document.title = `${state.roomName} · 拾分`;
       document.getElementById("roomName").textContent = state.roomName;
       document.getElementById("roomCode").textContent = state.roomCode;
       document.getElementById("memberCount").textContent = state.members.length;
       document.getElementById("totalPoints").textContent = state.members.reduce((sum, member) => sum + member.points, 0).toLocaleString("zh-CN");
-      document.getElementById("myRank").textContent = `${ranked.findIndex(member => member.id === state.currentId) + 1}`;
+      document.getElementById("myRank").textContent = allTied ? "并列" : `${ranked.findIndex(member => member.id === state.currentId) + 1}`;
       document.getElementById("myPoints").textContent = current.points.toLocaleString("zh-CN");
       document.getElementById("memberList").innerHTML = ranked.map((member, index) => `
         <div class="member">
           <span class="rank${index === 0 ? " first" : ""}">${String(index + 1).padStart(2, "0")}</span>
           <span class="avatar${member.id === state.currentId ? " you" : ""}">${escapeHtml(member.icon || "🙂")}</span>
-          <span><span class="member-name">${escapeHtml(member.name)}${member.id === state.currentId ? "（我）" : ""}</span><span class="member-hint">${index === 0 ? "本房间积分领先" : "继续积累，越来越棒"}</span></span>
+          <span><span class="member-name">${escapeHtml(member.name)}${member.id === state.currentId ? "（我）" : ""}</span><span class="member-hint">${allTied ? "当前积分并列" : index === 0 ? "本房间积分领先" : member.points < 0 ? "积分可继续积累" : "继续积累，越来越棒"}</span></span>
+          <button class="score-adjust" type="button" data-adjust="${escapeHtml(member.id)}" aria-label="调整${escapeHtml(member.name)}的积分">调整</button>
           <span class="score-value">${member.points.toLocaleString("zh-CN")} <span class="score-unit">分</span></span>
         </div>`).join("");
       const history = [...state.transactions].sort((a, b) => b.time - a.time);
-      const markup = history.length ? history.map(transactionMarkup).join("") : '<div class="empty">还没有积分记录，转出第一笔积分吧</div>';
-      document.getElementById("activityList").innerHTML = markup;
-      document.getElementById("recentList").innerHTML = history.slice(0, 4).map(transactionMarkup).join("") || '<div class="empty">房间还没有动态</div>';
+      document.getElementById("activityList").innerHTML = history.map(transactionMarkup).join("") || '<div class="empty">还没有积分记录</div>';
+      document.querySelectorAll("[data-adjust]").forEach(button => button.addEventListener("click", () => showAdjustPoints(button.dataset.adjust)));
     }
 
     function showToast(message) {
@@ -338,6 +371,89 @@
       const root = document.getElementById("modalRoot");
       root.hidden = true;
       root.innerHTML = "";
+    }
+
+    function exportBackup() {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = `shifen-${state.roomCode}-${new Date().toISOString().slice(0, 10)}.json`;
+      link.click();
+      URL.revokeObjectURL(link.href);
+      showToast("备份文件已导出，请保存到安全的位置");
+    }
+
+    function validateBackup(data) {
+      if (!data || typeof data.roomName !== "string" || typeof data.roomCode !== "string" || typeof data.currentId !== "string" || !Array.isArray(data.members) || !Array.isArray(data.transactions)) return false;
+      const memberIds = new Set();
+      for (const member of data.members) {
+        if (!member || typeof member.id !== "string" || typeof member.name !== "string" || !Number.isSafeInteger(member.points) || memberIds.has(member.id)) return false;
+        memberIds.add(member.id);
+      }
+      if (!memberIds.has(data.currentId)) return false;
+      return data.transactions.every(transaction => {
+        if (!transaction || !Number.isSafeInteger(transaction.amount) || typeof transaction.time !== "number") return false;
+        if (transaction.type === "earn" || transaction.type === "adjust") return memberIds.has(transaction.to) && memberIds.has(transaction.actor);
+        return memberIds.has(transaction.from) && memberIds.has(transaction.to);
+      });
+    }
+
+    function restoreBackup(file) {
+      const reader = new FileReader();
+      reader.addEventListener("load", () => {
+        try {
+          const imported = JSON.parse(String(reader.result));
+          if (!validateBackup(imported)) {
+            showToast("备份文件格式不正确，现有数据未更改");
+            return;
+          }
+          const previous = structuredClone(state);
+          state = imported;
+          if (!saveState(previous, true)) return;
+          render();
+          if (storageCorrupt) showToast("本地积分数据无法读取，未覆盖原数据；请先从备份恢复");
+          showToast("数据已从备份恢复");
+        } catch (error) {
+          if (error instanceof SyntaxError) {
+            showToast("无法读取备份文件，现有数据未更改");
+            return;
+          }
+          throw error;
+        }
+      });
+      reader.addEventListener("error", () => showToast("读取备份文件失败，请重试"));
+      reader.readAsText(file);
+    }
+
+    function showRoomMenu() {
+      openModal("房间与数据", "数据保存在当前浏览器。可导出备份文件，换设备或清理浏览器前请先备份。", `
+        <div class="quick-actions" style="padding:0;grid-template-columns:1fr 1fr">
+          <button class="button" id="menuCreateRoom">＋ 新建房间</button>
+          <button class="button" id="menuJoinRoom">加入房间</button>
+          <button class="button quiet" id="menuBackup">导出备份</button>
+          <button class="button" id="menuRestore">恢复备份</button>
+        </div>
+        <div class="modal-actions"><button class="button" id="persistStorageBtn">保护本机数据</button></div>
+        <p class="center-copy">本机数据无法自动同步到其他设备。浏览器清除网站数据时，本地记录也可能被删除。</p>`);
+      document.getElementById("menuCreateRoom").addEventListener("click", () => { closeModal(); showCreateRoom(); });
+      document.getElementById("menuJoinRoom").addEventListener("click", () => { closeModal(); showJoinRoom(); });
+      document.getElementById("menuBackup").addEventListener("click", exportBackup);
+      document.getElementById("menuRestore").addEventListener("click", () => {
+        closeModal();
+        document.getElementById("restoreFile").click();
+      });
+      document.getElementById("persistStorageBtn").addEventListener("click", async () => {
+        if (!navigator.storage || typeof navigator.storage.persist !== "function") {
+          showToast("当前浏览器不支持本地存储保护，请定期导出备份");
+          return;
+        }
+        try {
+          const granted = await navigator.storage.persist();
+          showToast(granted ? "浏览器已保护本站数据，仍建议定期导出备份" : "浏览器未授予存储保护，请定期导出备份");
+        } catch {
+          showToast("无法请求浏览器存储保护，请定期导出备份");
+        }
+      });
     }
 
     async function copyText(text) {
@@ -395,10 +511,10 @@
         showToast("先添加一位伙伴，再转出积分");
         return;
       }
-      openModal("转出积分", `当前可用积分 ${current.points} 分。转赠后会立即更新双方积分。`, `
+      openModal("转出积分", `当前积分 ${current.points} 分。转赠后立即更新双方积分；积分允许为负。`, `
         <form id="transferForm">
           <div class="field"><label for="transferTo">转给谁</label><select id="transferTo" required>${friends.map(member => `<option value="${escapeHtml(member.id)}">${escapeHtml(member.name)} · ${member.points} 分</option>`).join("")}</select></div>
-          <div class="field"><label for="transferAmount">转出积分</label><input id="transferAmount" type="number" min="1" max="${current.points}" placeholder="请输入积分数量" required></div>
+          <div class="field"><label for="transferAmount">转出积分</label><input id="transferAmount" type="number" min="1" step="1" placeholder="请输入正整数，余额可转为负数" required></div>
           <div class="field"><label for="transferNote">备注（选填）</label><input id="transferNote" maxlength="32" placeholder="例如：今天打卡完成啦"></div>
           <div class="modal-actions"><button type="button" class="button" data-close>取消</button><button type="submit" class="button primary">确认转出</button></div>
         </form>`);
@@ -407,14 +523,15 @@
         const recipient = getMember(document.getElementById("transferTo").value);
         const amount = Number(document.getElementById("transferAmount").value);
         const note = document.getElementById("transferNote").value.trim();
-        if (!recipient || !Number.isSafeInteger(amount) || amount < 1 || amount > current.points) {
-          showToast("积分数量无效，请检查可用积分");
+        if (!recipient || !Number.isSafeInteger(amount) || amount < 1 || !Number.isSafeInteger(current.points - amount) || !Number.isSafeInteger(recipient.points + amount)) {
+          showToast("积分数量无效或超出整数范围");
           return;
         }
+        const previous = structuredClone(state);
         current.points -= amount;
         recipient.points += amount;
         state.transactions.unshift({ from: current.id, to: recipient.id, amount, note, time: Date.now() });
-        saveState();
+        if (!saveState(previous)) return;
         render();
         closeModal();
         showToast(`已转给 ${recipient.name} ${amount} 分`);
@@ -423,7 +540,7 @@
 
     function showAddPoints() {
       const current = getMember(state.currentId);
-      openModal("记一笔积分", "给自己或房间伙伴记入积分，分数会立即累计到账。", `
+      openModal("记一笔积分", "给自己或房间伙伴增加积分，积分从 0 开始积累。", `
         <form id="addPointsForm">
           <div class="field"><label for="pointsTo">记给谁</label><select id="pointsTo" required>${state.members.map(member => `<option value="${escapeHtml(member.id)}"${member.id === current.id ? " selected" : ""}>${escapeHtml(member.name)} · ${member.points} 分</option>`).join("")}</select></div>
           <div class="field"><label for="pointsAmount">增加积分</label><input id="pointsAmount" type="number" min="1" max="1000000" placeholder="请输入积分数量" required></div>
@@ -435,36 +552,66 @@
         const recipient = getMember(document.getElementById("pointsTo").value);
         const amount = Number(document.getElementById("pointsAmount").value);
         const note = document.getElementById("pointsNote").value.trim();
-        if (!recipient || !Number.isSafeInteger(amount) || amount < 1 || amount > 1000000) {
-          showToast("积分数量无效，请输入 1 到 1,000,000 之间的整数");
+        if (!recipient || !Number.isSafeInteger(amount) || amount < 1 || !Number.isSafeInteger(recipient.points + amount)) {
+          showToast("积分数量无效或超出整数范围");
           return;
         }
+        const previous = structuredClone(state);
         recipient.points += amount;
         state.transactions.unshift({ type: "earn", actor: current.id, to: recipient.id, amount, note, time: Date.now() });
-        saveState();
+        if (!saveState(previous)) return;
         render();
         closeModal();
         showToast(`已为 ${recipient.name} 记入 ${amount} 分`);
       });
     }
 
+    function showAdjustPoints(memberId) {
+      const member = getMember(memberId);
+      if (!member) {
+        showToast("找不到这位房间伙伴");
+        return;
+      }
+      openModal(`调整${escapeHtml(member.name)}的积分`, `当前积分 ${member.points} 分。输入正数增加、负数减少，可以调整到负分。`, `
+        <form id="adjustForm">
+          <div class="field"><label for="adjustAmount">积分变化</label><input id="adjustAmount" type="number" step="1" placeholder="例如 20 或 -10" required></div>
+          <div class="field"><label for="adjustNote">备注（选填）</label><input id="adjustNote" maxlength="32" placeholder="例如：补记上周积分"></div>
+          <div class="modal-actions"><button type="button" class="button" data-close>取消</button><button type="submit" class="button primary">确认调整</button></div>
+        </form>`);
+      document.getElementById("adjustForm").addEventListener("submit", event => {
+        event.preventDefault();
+        const amount = Number(document.getElementById("adjustAmount").value);
+        const note = document.getElementById("adjustNote").value.trim();
+        if (!Number.isSafeInteger(amount) || amount === 0 || !Number.isSafeInteger(member.points + amount)) {
+          showToast("请输入有效的非零整数，且结果需在安全范围内");
+          return;
+        }
+        const previous = structuredClone(state);
+        member.points += amount;
+        state.transactions.unshift({ type: "adjust", actor: state.currentId, to: member.id, amount, note, time: Date.now() });
+        if (!saveState(previous)) return;
+        render();
+        closeModal();
+        showToast(`${member.name} 的积分已${amount > 0 ? "增加" : "减少"} ${Math.abs(amount)} 分`);
+      });
+    }
+
     function showAddMember() {
-      openModal("添加房间伙伴", "添加一位伙伴到本机演示数据中，开始记录彼此的积分。", `
+      openModal("添加房间伙伴", "新伙伴将从 0 分开始。需要时可手动调整积分。", `
         <form id="addMemberForm">
           <div class="field"><label for="memberName">伙伴昵称</label><input id="memberName" maxlength="16" placeholder="请输入昵称" required></div>
-          <div class="field"><label for="memberStart">初始积分</label><input id="memberStart" type="number" min="0" max="1000000" value="0" required></div>
           <div class="modal-actions"><button type="button" class="button" data-close>取消</button><button type="submit" class="button primary">添加伙伴</button></div>
         </form>`);
       document.getElementById("addMemberForm").addEventListener("submit", event => {
         event.preventDefault();
         const name = document.getElementById("memberName").value.trim();
-        const points = Number(document.getElementById("memberStart").value);
-        if (!name || !Number.isSafeInteger(points) || points < 0 || points > 1000000 || state.members.some(member => member.name === name)) {
-          showToast("请填写有效积分，昵称不能重复");
+        if (!name || state.members.some(member => member.name === name)) {
+          showToast("请输入昵称，且昵称不能重复");
           return;
         }
-        state.members.push({ id: `m-${crypto.randomUUID()}`, name, points, icon: icons[Math.floor(Math.random() * icons.length)] });
-        saveState();
+        const previous = structuredClone(state);
+        state.members.push({ id: `m-${crypto.randomUUID()}`, name, points: 0, icon: icons[Math.floor(Math.random() * icons.length)] });
+        if (!saveState(previous)) return;
         render();
         closeModal();
         showToast(`${name} 已加入房间`);
@@ -489,11 +636,12 @@
           showToast("你已经在这个房间里啦");
           return;
         }
+        const previous = structuredClone(state);
         state.roomCode = code;
         state.roomName = "新加入的房间";
         state.members = [{ id: state.currentId, name: getMember(state.currentId).name, points: 0, icon: getMember(state.currentId).icon }];
         state.transactions = [];
-        saveState();
+        if (!saveState(previous)) return;
         render();
         closeModal();
         showToast("演示房间已切换；跨设备同步需接入服务端");
@@ -513,12 +661,13 @@
           showToast("请输入房间名称");
           return;
         }
+        const previous = structuredClone(state);
         const current = getMember(state.currentId);
         state.roomName = roomName;
         state.roomCode = crypto.randomUUID().replaceAll("-", "").slice(0, 4).toUpperCase();
         state.members = [{ id: state.currentId, name: current.name, points: 0, icon: current.icon }];
         state.transactions = [];
-        saveState();
+        if (!saveState(previous)) return;
         render();
         closeModal();
         showToast("房间已创建，邀请伙伴加入吧");
@@ -526,28 +675,19 @@
     }
 
     document.getElementById("newRoomBtn").addEventListener("click", showCreateRoom);
+    document.getElementById("roomMenuBtn").addEventListener("click", showRoomMenu);
+    document.getElementById("backupBtn").addEventListener("click", exportBackup);
+    document.getElementById("restoreFile").addEventListener("change", event => {
+      const file = event.currentTarget.files[0];
+      if (file) restoreBackup(file);
+      event.currentTarget.value = "";
+    });
     document.getElementById("inviteBtn").addEventListener("click", invite);
     document.getElementById("joinRoomBtn").addEventListener("click", showJoinRoom);
     document.getElementById("addMemberBtn").addEventListener("click", showAddMember);
     document.getElementById("addPointsBtn").addEventListener("click", showAddPoints);
     document.getElementById("transferBtn").addEventListener("click", showTransfer);
     document.getElementById("copyCodeBtn").addEventListener("click", () => copyText(state.roomCode));
-    document.getElementById("rankTab").addEventListener("click", event => {
-      event.currentTarget.classList.add("active");
-      event.currentTarget.setAttribute("aria-selected", "true");
-      document.getElementById("historyTab").classList.remove("active");
-      document.getElementById("historyTab").setAttribute("aria-selected", "false");
-      document.getElementById("memberList").hidden = false;
-      document.getElementById("activityList").hidden = true;
-    });
-    document.getElementById("historyTab").addEventListener("click", event => {
-      event.currentTarget.classList.add("active");
-      event.currentTarget.setAttribute("aria-selected", "true");
-      document.getElementById("rankTab").classList.remove("active");
-      document.getElementById("rankTab").setAttribute("aria-selected", "false");
-      document.getElementById("memberList").hidden = true;
-      document.getElementById("activityList").hidden = false;
-    });
     document.addEventListener("keydown", event => { if (event.key === "Escape") closeModal(); });
 
     const invitedRoom = new URLSearchParams(location.search).get("room");
